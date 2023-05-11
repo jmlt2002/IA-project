@@ -3,10 +3,11 @@
 # Além das funções e classes já definidas, podem acrescentar outras que considerem pertinentes.
 
 # Grupo 00:
-# 00000 Nome1
-# 00000 Nome2
+# 99986 João Tiago
+# 102663 Pedro Ribeiro
 
 import sys
+import numpy as np
 from search import (
     Problem,
     Node,
@@ -34,26 +35,40 @@ class BimaruState:
 
 class Board:
     """Representação interna de um tabuleiro de Bimaru."""
+    
+    rows = 10
+    columns = 10
 
     def get_value(self, row: int, col: int) -> str:
         """Devolve o valor na respetiva posição do tabuleiro."""
-        # TODO
-        pass
+        return self.board[row][col]
 
     def adjacent_vertical_values(self, row: int, col: int) -> (str, str):
         """Devolve os valores imediatamente acima e abaixo,
-        respectivamente."""
-        # TODO
-        pass
+        respectivamente. (acima, abaixo)"""
+        if(row == 0):
+            return ('OUT', self.board[row+1][col])
+        elif(row == 9):
+            return (self.board[row-1][col], 'OUT')
+        return (self.board[row-1][col], self.board[row+1][col])
 
     def adjacent_horizontal_values(self, row: int, col: int) -> (str, str):
         """Devolve os valores imediatamente à esquerda e à direita,
-        respectivamente."""
-        # TODO
-        pass
+        respectivamente. (esquerda, direita)"""
+        if(col == 0):
+            return ('OUT', self.board[row][col+1])
+        elif(col == 9):
+            return (self.board[row][col-1], 'OUT')
+        else:
+            return (self.board[row][col-1], self.board[row][col+1])
+
+    def __init__(self):
+        self.board = np.full((10, 10), '0')
+        self.row_values = [0]*Board.rows
+        self.column_values = [0]*Board.columns
 
     @staticmethod
-    def parse_instance():
+    def parse_instance(self):
         """Lê o test do standard input (stdin) que é passado como argumento
         e retorna uma instância da classe Board.
 
@@ -63,22 +78,70 @@ class Board:
             > from sys import stdin
             > line = stdin.readline().split()
         """
-        # TODO
+
+        water_row = ['▒','▒','▒','▒','▒','▒','▒','▒','▒','▒']
+
+        #row values
+        row_inputs = input().split()
+        for i in range(self.rows):
+            if(row_inputs[i+1] == '0'):
+                self.board[i] = water_row
+            else:
+                self.row_values[i] = int(row_inputs[i+1]) #1st element ROWS
+
+        #column values
+        column_inputs = input().split()
+        for i in range(self.columns):
+            if(column_inputs[i+1] == '0'):
+                for j in range(self.rows):
+                    self.board[j][i] = '▒'
+            else:
+                self.column_values[i] = int(column_inputs[i+1]) #1st element COLUMNS
+
+        #hints
+        hint_total = int(input())
+
+        for i in range(hint_total):
+            hint = input().split()
+            #HINT row[1] column[2] value[3]
+            if(hint[3] == 'W'):
+                self.board[int(hint[1])][int(hint[2])] = '▒'
+            elif(hint[3] == 'T'):
+                self.board[int(hint[1])][int(hint[2])] = '▲'
+            elif(hint[3] == 'B'):
+                self.board[int(hint[1])][int(hint[2])] = '▼'
+            elif(hint[3] == 'R'):
+                self.board[int(hint[1])][int(hint[2])] = '▶'
+            elif(hint[3] == 'L'):
+                self.board[int(hint[1])][int(hint[2])] = '◀'
+            elif(hint[3] == 'M'):
+                self.board[int(hint[1])][int(hint[2])] = '■'
+            elif(hint[3] == 'C'):
+                self.board[int(hint[1])][int(hint[2])] = '●'
+        
+        print("board->\n")
+        for i in range(10):
+            for j in range(10):
+                print(self.board[i][j], end=' ')
+            print('  ', end='')
+            print(self.row_values[i])
+        print()
+        for i in range(10):
+            print(self.column_values[i], end=' ')
         pass
 
     # TODO: outros metodos da classe
 
-
 class Bimaru(Problem):
     def __init__(self, board: Board):
         """O construtor especifica o estado inicial."""
-        # TODO
+        # TODO:
         pass
 
     def actions(self, state: BimaruState):
         """Retorna uma lista de ações que podem ser executadas a
         partir do estado passado como argumento."""
-        # TODO
+        # TODO:
         pass
 
     def result(self, state: BimaruState, action):
@@ -86,19 +149,19 @@ class Bimaru(Problem):
         'state' passado como argumento. A ação a executar deve ser uma
         das presentes na lista obtida pela execução de
         self.actions(state)."""
-        # TODO
+        # TODO:
         pass
 
     def goal_test(self, state: BimaruState):
         """Retorna True se e só se o estado passado como argumento é
         um estado objetivo. Deve verificar se todas as posições do tabuleiro
         estão preenchidas de acordo com as regras do problema."""
-        # TODO
+        # TODO:
         pass
 
     def h(self, node: Node):
         """Função heuristica utilizada para a procura A*."""
-        # TODO
+        # TODO:
         pass
 
     # TODO: outros metodos da classe
@@ -111,3 +174,9 @@ if __name__ == "__main__":
     # Retirar a solução a partir do nó resultante,
     # Imprimir para o standard output no formato indicado.
     pass
+
+def bimaru_read():
+    board = Board()
+    board.parse_instance(board)
+
+bimaru_read()
