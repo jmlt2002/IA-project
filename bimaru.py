@@ -2,7 +2,7 @@
 # Devem alterar as classes e funções neste ficheiro de acordo com as instruções do enunciado.
 # Além das funções e classes já definidas, podem acrescentar outras que considerem pertinentes.
 
-# Grupo 00:
+# Grupo 61:
 # 99986 João Tiago
 # 102663 Pedro Ribeiro
 
@@ -32,7 +32,6 @@ Three_boat = (Position, Position, Position, str)
 Two_boat = (Position, Position, str) #last str indicates direction
 One_boat = Position
 
-
 class BimaruState:
     state_id = 0
 
@@ -48,9 +47,6 @@ class BimaruState:
 
 class Board:
     """Representação interna de um tabuleiro de Bimaru."""
-    
-    rows = 10
-    columns = 10
 
     def __init__(self):
         self.board = np.full((10, 10), '0')
@@ -98,21 +94,22 @@ class Board:
         water_row = ['W','W','W','W','W','W','W','W','W','W']
 
         #read rows values
-        rows = input().split()
+        rows_raw = input().split()
+        self.rows = rows_raw[1:]
+        self.rows = np.array(self.rows, dtype=int)
         for i in range(len(self.rows)):
-            if(rows[i+1] == '0'):
-                self.board[i] = water_row
-            else:
-                self.rows[i] = int(rows[i+1]) #1st element ROWS
+            self.rows[i] = int(self.rows[i])
 
         #read columns values
-        columns = input().split()
+        columns_raw = input().split()
+        self.columns = columns_raw[1:]
+        self.columns = np.array(self.columns, dtype=int)
         for i in range(len(self.columns)):
-            if(columns[i+1] == '0'):
+            if(self.columns[i] == 0):
                 for j in range(len(self.rows)):
                     self.board[j][i] = 'W'
             else:
-                self.columns[i] = int(columns[i+1]) #1st element COLUMNS
+                self.columns[i] = int(self.columns[i])
 
         #read hints
         hint_total = int(input())
@@ -120,8 +117,10 @@ class Board:
         for i in range(hint_total):
             hint = input().split()
             self.board[int(hint[1])][int(hint[2])] = hint[3]
-            
-            # TODO: decrease row and column values by 1
+            if(hint[3] != 'W'):
+                self.rows[int(hint[1])] -= 1
+                self.columns[int(hint[2])] -= 1
+        # TODO: CHECK IF IS A LETTER
 
             if(hint[3] == 'M'):
                 self.fill_water_around_middle(int(hint[1]), int(hint[2]), hint[3])
@@ -135,6 +134,16 @@ class Board:
                 self.fill_water_around_left(int(hint[1]), int(hint[2]), hint[3])
             elif(hint[3] == 'R'):
                 self.fill_water_around_right(int(hint[1]), int(hint[2]), hint[3])
+
+        for i in range(10):
+            if(self.rows[i] == 0):
+                for j in range(len(self.rows)):
+                    if(not self.board[i][j].isalpha()):
+                        self.board[i][j] = 'W'
+            if(self.columns[i] == 0):
+                for j in range(len(self.rows)):
+                    if(not self.board[j][i].isalpha()):
+                        self.board[j][i] = 'W'
 
         pass
 
