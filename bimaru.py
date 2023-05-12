@@ -18,6 +18,20 @@ from search import (
     recursive_best_first_search,
 )
 
+ROWS = 10
+COLUMNS = 10
+
+#USEFULL DEFINITIONS
+Hint = (str, bool)
+Position = (int, int)
+Action = (str, Position)
+
+#BOATS
+Four_boat = (Position, Position, Position, Position, str)
+Three_boat = (Position, Position, Position, str)
+Two_boat = (Position, Position, str) #last str indicates direction
+One_boat = Position
+
 
 class BimaruState:
     state_id = 0
@@ -32,12 +46,18 @@ class BimaruState:
 
     # TODO: outros metodos da classe
 
-
 class Board:
     """Representação interna de um tabuleiro de Bimaru."""
     
     rows = 10
     columns = 10
+
+    def __init__(self):
+        self.board = np.full((10, 10), '0')
+        self.rows= [0]*ROWS
+        self.columns = [0]*COLUMNS
+        self.initial_row_value = [0]*ROWS   #listas para guardar os valores iniciais das col e lin
+        self.initial_column_value = [0]*COLUMNS  #para passar logo a frente na procura de barcos
 
     def get_value(self, row: int, col: int) -> str:
         """Devolve o valor na respetiva posição do tabuleiro."""
@@ -62,11 +82,6 @@ class Board:
         else:
             return (self.board[row][col-1], self.board[row][col+1])
 
-    def __init__(self):
-        self.board = np.full((10, 10), '0')
-        self.row_values = [0]*Board.rows
-        self.column_values = [0]*Board.columns
-
     @staticmethod
     def parse_instance(self):
         """Lê o test do standard input (stdin) que é passado como argumento
@@ -79,157 +94,191 @@ class Board:
             > line = stdin.readline().split()
         """
 
-        water_row = ['▒','▒','▒','▒','▒','▒','▒','▒','▒','▒']
+        # to use in rows and columns with no boat
+        water_row = ['W','W','W','W','W','W','W','W','W','W']
 
-        row_inputs = input().split()
-        for i in range(self.rows):
-            if(row_inputs[i+1] == '0'):
+        #read rows values
+        rows = input().split()
+        for i in range(len(self.rows)):
+            if(rows[i+1] == '0'):
                 self.board[i] = water_row
             else:
-                self.row_values[i] = int(row_inputs[i+1]) #1st element ROWS
+                self.rows[i] = int(rows[i+1]) #1st element ROWS
 
-        column_inputs = input().split()
-        for i in range(self.columns):
-            if(column_inputs[i+1] == '0'):
-                for j in range(self.rows):
-                    self.board[j][i] = '▒'
+        #read columns values
+        columns = input().split()
+        for i in range(len(self.columns)):
+            if(columns[i+1] == '0'):
+                for j in range(len(self.rows)):
+                    self.board[j][i] = 'W'
             else:
-                self.column_values[i] = int(column_inputs[i+1]) #1st element COLUMNS
+                self.columns[i] = int(columns[i+1]) #1st element COLUMNS
 
+        #read hints
         hint_total = int(input())
 
         for i in range(hint_total):
             hint = input().split()
-            #HINT row[1] column[2] value[3]
-            if(hint[3] == 'W'):
-                self.board[int(hint[1])][int(hint[2])] = '▒'
-            elif(hint[3] == 'T'):
-                self.board[int(hint[1])][int(hint[2])] = '▲'
-                self.fill_water_around_top(int(hint[1]), int(hint[2]), 'T')
-            elif(hint[3] == 'B'):
-                self.board[int(hint[1])][int(hint[2])] = '▼'
-                self.fill_water_around_bottom(int(hint[1]), int(hint[2]), 'B')
-            elif(hint[3] == 'R'):
-                self.board[int(hint[1])][int(hint[2])] = '▶'
-                self.fill_water_around__right(int(hint[1]), int(hint[2]), 'R')
-            elif(hint[3] == 'L'):
-                self.board[int(hint[1])][int(hint[2])] = '◀'
-                self.fill_water_around_left(int(hint[1]), int(hint[2]), 'L')
-            elif(hint[3] == 'M'):
-                self.board[int(hint[1])][int(hint[2])] = '■'
-                self.fill_water_around_middle(int(hint[1]), int(hint[2]), 'M')
+            self.board[int(hint[1])][int(hint[2])] = hint[3]
+            
+            # TODO: decrease row and column values by 1
+
+            if(hint[3] == 'M'):
+                self.fill_water_around_middle(int(hint[1]), int(hint[2]), hint[3])
             elif(hint[3] == 'C'):
-                self.board[int(hint[1])][int(hint[2])] = '●'
-                self.fill_water_around_circle(int(hint[1]), int(hint[2]), 'C')
-        
+                self.fill_water_around_circle(int(hint[1]), int(hint[2]), hint[3])
+            elif(hint[3] == 'B'):
+                self.fill_water_around_bottom(int(hint[1]), int(hint[2]), hint[3])
+            elif(hint[3] == 'T'):
+                self.fill_water_around_top(int(hint[1]), int(hint[2]), hint[3])
+            elif(hint[3] == 'L'):
+                self.fill_water_around_left(int(hint[1]), int(hint[2]), hint[3])
+            elif(hint[3] == 'R'):
+                self.fill_water_around_right(int(hint[1]), int(hint[2]), hint[3])
+
+        pass
+
+    def print_board(self):
+        """"Imprime o tabuleiro de jogo."""
         print("board->\n")
         for i in range(10):
             for j in range(10):
-                print(self.board[i][j], end=' ')
+                if(self.board[i][j] == 'W'):
+                    print('▒', end=' ')
+                elif(self.board[i][j] == 'M'):
+                    print('■', end=' ')
+                elif(self.board[i][j] == 'C'):
+                    print('●', end=' ')
+                elif(self.board[i][j] == 'B'):
+                    print('▼', end=' ')
+                elif(self.board[i][j] == 'T'):
+                    print('▲', end=' ')
+                elif(self.board[i][j] == 'L'):
+                    print('◀', end=' ')
+                elif(self.board[i][j] == 'R'):
+                    print('▶', end=' ')
+                else:
+                    print('0', end=' ')
             print('  ', end='')
-            print(self.row_values[i])
+            print(self.rows[i])
         print()
         for i in range(10):
-            print(self.column_values[i], end=' ')
+            print(self.columns[i], end=' ')
         pass
 
+    # FILLS WATER TILES ADJACENT TO SHIPS------------------------------
     def fill_water_around_circle(self, row: int, col: int, dir: str):
         if(row + 1 < 10):
-            self.board[row+1][col] = '▒'
+            self.board[row+1][col] = 'W'
             if(col + 1 < 10):
-                self.board[row+1][col+1] = '▒'
-                self.board[row][col+1] = '▒'
+                self.board[row+1][col+1] = 'W'
+                self.board[row][col+1] = 'W'
             if(col - 1 >= 0):
-                self.board[row+1][col-1] = '▒'
-                self.board[row][col-1] = '▒'
+                self.board[row+1][col-1] = 'W'
+                self.board[row][col-1] = 'W'
         if(row - 1 >= 0):
-            self.board[row-1][col] = '▒'
+            self.board[row-1][col] = 'W'
             if(col + 1 < 10):
-                self.board[row-1][col+1] = '▒'
-                self.board[row][col+1] = '▒'
+                self.board[row-1][col+1] = 'W'
+                self.board[row][col+1] = 'W'
             if(col - 1 >= 0):
-                self.board[row-1][col-1] = '▒'
-                self.board[row][col-1] = '▒'
+                self.board[row-1][col-1] = 'W'
+                self.board[row][col-1] = 'W'
     
     def fill_water_around_middle(self, row: int, col: int, dir: str):
         if(row + 1 < 10 and col + 1 < 10):
-            self.board[row+1][col+1] = '▒'
+            self.board[row+1][col+1] = 'W'
         if(row + 1 < 10 and col - 1 >= 0):
-            self.board[row+1][col-1] = '▒'
+            self.board[row+1][col-1] = 'W'
         if(row - 1 >= 0 and col + 1 < 10):
-            self.board[row-1][col+1] = '▒'
+            self.board[row-1][col+1] = 'W'
         if(row - 1 >= 0 and col - 1 >= 0):
-            self.board[row-1][col-1] = '▒'
+            self.board[row-1][col-1] = 'W'
 
     def fill_water_around_top(self, row: int, col: int, dir: str):
         if(row + 1 < 10 and col + 1 < 10):
-                self.board[row+1][col+1] = '▒'
-                self.board[row][col+1] = '▒'
+                self.board[row+1][col+1] = 'W'
+                self.board[row][col+1] = 'W'
                 if(col - 1 >= 0):
-                    self.board[row+1][col-1] = '▒'
-                    self.board[row][col-1] = '▒'
+                    self.board[row+1][col-1] = 'W'
+                    self.board[row][col-1] = 'W'
         if(row - 1 >= 0):
-            self.board[row-1][col] = '▒'
+            self.board[row-1][col] = 'W'
             if(col + 1 < 10):
-                self.board[row-1][col+1] = '▒'
-                self.board[row][col+1] = '▒'
+                self.board[row-1][col+1] = 'W'
+                self.board[row][col+1] = 'W'
             if(col - 1 >= 0):
-                self.board[row-1][col-1] = '▒'
-                self.board[row][col-1] = '▒'
+                self.board[row-1][col-1] = 'W'
+                self.board[row][col-1] = 'W'
         pass
 
     def fill_water_around_bottom(self, row: int, col: int, dir: str):
         if(row + 1 < 10):
-            self.board[row+1][col] = '▒'
+            self.board[row+1][col] = 'W'
             if(col + 1 < 10):
-                self.board[row+1][col+1] = '▒'
-                self.board[row][col+1] = '▒'
+                self.board[row+1][col+1] = 'W'
+                self.board[row][col+1] = 'W'
             if(col - 1 >= 0):
-                self.board[row+1][col-1] = '▒'
-                self.board[row][col-1] = '▒'
+                self.board[row+1][col-1] = 'W'
+                self.board[row][col-1] = 'W'
         if(row - 1 >= 0 and col + 1 < 10):
-            self.board[row-1][col+1] = '▒'
-            self.board[row][col+1] = '▒'
+            self.board[row-1][col+1] = 'W'
+            self.board[row][col+1] = 'W'
         if(row - 1 >= 0 and col - 1 >= 0):
-            self.board[row-1][col-1] = '▒'
-            self.board[row][col-1] = '▒'
+            self.board[row-1][col-1] = 'W'
+            self.board[row][col-1] = 'W'
         pass
     
     def fill_water_around_right(self, row: int, col: int, dir: str):
         if(col + 1 < 10):
-            self.board[row][col+1] = '▒'
+            self.board[row][col+1] = 'W'
             if(row + 1 < 10):
-                self.board[row+1][col+1] = '▒'
-                self.board[row+1][col] = '▒'
+                self.board[row+1][col+1] = 'W'
+                self.board[row+1][col] = 'W'
             if(row - 1 >= 0):
-                self.board[row-1][col+1] = '▒'
-                self.board[row-1][col] = '▒'
+                self.board[row-1][col+1] = 'W'
+                self.board[row-1][col] = 'W'
         if(col - 1 >= 0 and row + 1 < 10):
-            self.board[row+1][col-1] = '▒'
-            self.board[row+1][col] = '▒'
+            self.board[row+1][col-1] = 'W'
+            self.board[row+1][col] = 'W'
         if(col - 1 >= 0 and row - 1 >= 0):
-            self.board[row-1][col-1] = '▒'
-            self.board[row-1][col] = '▒'
+            self.board[row-1][col-1] = 'W'
+            self.board[row-1][col] = 'W'
         pass
 
     def fill_water_around_left(self, row: int, col: int, dir: str):
         if(col - 1 >= 0):
-            self.board[row][col-1] = '▒'
+            self.board[row][col-1] = 'W'
             if(row + 1 < 10):
-                self.board[row+1][col-1] = '▒'
-                self.board[row+1][col] = '▒'
+                self.board[row+1][col-1] = 'W'
+                self.board[row+1][col] = 'W'
             if(row - 1 >= 0):
-                self.board[row-1][col-1] = '▒'
-                self.board[row-1][col] = '▒'
+                self.board[row-1][col-1] = 'W'
+                self.board[row-1][col] = 'W'
         if(col + 1 < 10 and row + 1 < 10):
-            self.board[row+1][col+1] = '▒'
-            self.board[row+1][col] = '▒'
+            self.board[row+1][col+1] = 'W'
+            self.board[row+1][col] = 'W'
         if(col + 1 < 10 and row - 1 >= 0):
-            self.board[row-1][col+1] = '▒'
-            self.board[row-1][col] = '▒'
+            self.board[row-1][col+1] = 'W'
+            self.board[row-1][col] = 'W'
+        pass
+    #---------------------------------------------------------------------
+
+    def look_for_four_boat(self) -> tuple(Four_boat):
+        "procura no tabuleiro espacos onde colocar barcos de 4"
         pass
 
-    # TODO: outros metodos da classe
+    def look_for_three_boat(self) -> tuple(Three_boat):
+        "procura no tabuleiro espacos onde colocar barcos de 3"
+        pass
+
+    def look_for_two_boat(self) -> tuple(Two_boat):
+        "procura no tabuleiro espacos onde colocar barcos de 2"
+        pass
+
+    def look_for_one_boat(self) -> tuple(One_boat):
+        "procura no tabuleiro espacos onde colocar barcos de 1"
+        pass
 
 class Bimaru(Problem):
     def __init__(self, board: Board):
@@ -277,5 +326,6 @@ if __name__ == "__main__":
 def bimaru_read():
     board = Board()
     board.parse_instance(board)
+    board.print_board()
 
 bimaru_read()
