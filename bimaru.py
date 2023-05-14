@@ -282,9 +282,10 @@ class Board:
         pass
     #---------------------------------------------------------------------
 
-    def four_boats_line(self, four_boats: tuple, row):
+    def four_boats_line(self, four_boats:list , row):
         "Procura numa linha(row) quatro posicoes seguidas para colocar um barco"
         "e armazena-os no em four_boats"
+
         for column in range(COLUMNS-3):
             if self.board[row][column] == 'L' or self.board[row][column] == '0':
                 second_pos = self.board[row][column+1]
@@ -293,11 +294,11 @@ class Board:
                 if ((second_pos == 'M' or second_pos == '0') and
                     (third_pos == 'M' or third_pos == '0') and
                     (fourth_pos == 'R' or fourth_pos == '0')):
-                        four_boats.__add__(Four_boat((row,column),(row,column+1),
+                        four_boats.append(Four_boat((row,column),(row,column+1),
                                             (row,column+2), (row,column+3), HORIZONTAL))
         pass
 
-    def four_boats_column(self, four_boats:tuple, column):
+    def four_boats_column(self, four_boats:list , column):
         "Procura numa coluna(column) quatro posições seguidas para colocar um barco"
         "e armazena-os no em four_boats"
 
@@ -309,20 +310,117 @@ class Board:
                 if ((second_pos == 'M' or second_pos == '0') and
                     (third_pos == 'M' or third_pos == '0') and
                     (fourth_pos == 'B' or fourth_pos == '0')):
-                        four_boats.__add__(Four_boat((row,column),(row+1,column),
+                        four_boats.append(Four_boat((row,column),(row+1,column),
                                             (row+2,column), (row+3,column), VERTICAL))
         pass
 
-    def look_for_four_boat(self) -> tuple(Four_boat):
+    def three_boats_line(self, three_boats:list , row):
+        "Procura numa linha(row) tres posições seguidas para colocar um barco"
+        "e armazena-os no em three_boats"
+
+        for column in range(COLUMNS-2):
+            if self.board[row][column] == 'L' or self.board[row][column] == '0':
+                second_pos = self.board[row][column+1]
+                third_pos = self.board[row][column+2]
+                if ((second_pos == 'M' or second_pos == '0') and
+                    (third_pos == 'R' or third_pos == '0')):
+                        three_boats.append(Three_boat((row,column),(row,column+1),
+                                            (row,column+2), HORIZONTAL))
+        pass
+
+    def three_boats_column(self, three_boats:list, column):
+        "Procura numa coluna(column) tres posições seguidas para colocar um barco"
+        "e armazena-os no em three_boats"
+
+        for row in range(ROWS-2):
+            if self.board[row][column] == 'T' or self.board[row][column] == '0':
+                second_pos = self.board[row+1][column]
+                third_pos = self.board[row+2][column]
+                if ((second_pos == 'M' or second_pos == '0') and
+                    (third_pos == 'B' or third_pos == '0')):
+                        three_boats.append(Three_boat((row,column),(row+1,column),
+                                            (row+2,column), VERTICAL))
+        pass
+
+    def two_boats_line(self, two_boats:list, row):
+        "Procura numa linha(row) duas posições seguidas para colocar um barco"
+        "e armazena-os no em two_boats"
+
+        for column in range(COLUMNS-1):
+            if self.board[row][column] == 'L' or self.board[row][column] == '0':
+                second_pos = self.board[row][column+1]
+                if (second_pos == 'R' or second_pos == '0'):
+                    two_boats.append(Two_boat((row,column),(row,column+1), HORIZONTAL))
+        pass
+
+    def two_boats_column(self, two_boats:list, column):
+        "Procura numa coluna(column) duas posições seguidas para colocar um barco"
+        "e armazena-os no em two_boats"
+
+        for row in range(ROWS-1):
+            if self.board[row][column] == 'T' or self.board[row][column] == '0':
+                second_pos = self.board[row+1][column]
+                if (second_pos == 'B' or second_pos == '0'):
+                        two_boats.append(Two_boat((row,column),(row+1,column), VERTICAL))
+        pass
+
+    def one_boats(self, one_boats:list, row):
+        "Procura numa linha (row) uma posicao para colocar um barco"
+        "e armazena-o em one_boats"
+        
+        for column in range(COLUMNS-1):
+            if self.board[row][column] == '0':
+                one_boats.append(One_boat((row,column)))
+        pass
+
+    def look_for_four_boat(self) -> list:
         "Procura no tabuleiro espaços onde colocar barcos de 4"
-        all_four_boats = tuple()
-        for row in self.initial_row_value:
-            if row >= 4:
+
+        all_four_boats = list
+        for row in range(ROWS):
+            if self.rows[row] > 0 and self.initial_row_value[row] >= 4:
                 self.four_boats_line(all_four_boats, row)
-        for column in self.initial_column_value:
-            if column >=4:
+        for column in range(COLUMNS):
+            if self.columns[column] > 0 and self.initial_column_value[column] >=4:
                 self.four_boats_column(all_four_boats, column)
+
         return all_four_boats
+    
+    def look_for_three_boat(self) -> list:
+        "Procura no tabuleiro espacos onde colocar barcos de 3"
+
+        all_three_boats = list
+        for row in range(ROWS):
+            if self.rows[row] > 0 and self.initial_row_value[row] >= 3:
+                self.three_boats_line(all_three_boats, row)
+        for column in range(COLUMNS):
+            if self.columns[column] > 0 and self.initial_column_value[column] >=3:
+                self.three_boats_column(all_three_boats, column)
+
+        return all_three_boats
+    
+    def look_for_two_boat(self) -> list:
+        "Procura no tabuleiro espacos onde colocar barcos de 2"
+
+        all_two_boats = list
+        for row in range(ROWS):
+            if self.rows[row] > 0 and self.initial_row_value[row] >= 2:
+                self.two_boats_line(all_two_boats, row)
+        for column in range(COLUMNS):
+            if self.columns[column] > 0 and self.initial_column_value[column] >=2:
+                self.two_boats_column(all_two_boats, column)
+
+        return all_two_boats
+
+    def look_for_one_boat(self) -> list:
+        "Procura no tabuleiro espacos onde colocar barcos de 1"
+
+        all_one_boats = list
+        for row in range(ROWS):
+            if self.rows[row] > 0 and self.initial_row_value[row] >= 1:
+                self.one_boats(all_one_boats, row)
+
+        return all_one_boats
 
     def place_four_boat(self, four_boat:Four_boat) -> Action:
         "Recebe um barco de quatro e transforma-o numa ação"
@@ -332,7 +430,7 @@ class Board:
             placement2 = Placement('M', four_boat[1])
             placement3 = Placement('M', four_boat[2])
             placement4 = Placement('B', four_boat[3])
-
+        
         else:
             placement1 = Placement('L', four_boat[0])
             placement2 = Placement('M', four_boat[1])
@@ -340,18 +438,42 @@ class Board:
             placement4 = Placement('R', four_boat[3])
 
         return Action(placement1,placement2,placement3, placement4)
+    
+    def place_three_boat(self, three_boat: Three_boat) -> Action:
+        "Recebe um barco de tres e transforma-o numa acao"
 
-    def look_for_three_boat(self) -> tuple(Three_boat):
-        "Procura no tabuleiro espacos onde colocar barcos de 3"
-        pass
+        if (Three_boat[3] == VERTICAL):
+            placement1 = Placement('T', three_boat[0])
+            placement2 = Placement('M', three_boat[1])
+            placement3 = Placement('B', three_boat[2])
+        
+        else:
+            placement1 = Placement('L', three_boat[0])
+            placement2 = Placement('M', three_boat[1])
+            placement3 = Placement('R', three_boat[2])
 
-    def look_for_two_boat(self) -> tuple(Two_boat):
-        "Procura no tabuleiro espacos onde colocar barcos de 2"
-        pass
+        return Action(placement1,placement2,placement3)
+    
+    def place_two_boat(self, two_boat: Two_boat) -> Action:
+        "Recebe um barco de dois e transforma-o numa acao"
 
-    def look_for_one_boat(self) -> tuple(One_boat):
-        "Procura no tabuleiro espacos onde colocar barcos de 1"
-        pass
+        if (Two_boat[2] == VERTICAL):
+            placement1 = Placement('T', two_boat[0])
+            placement2 = Placement('B', two_boat[1])
+        
+        else:
+            placement1 = Placement('L', two_boat[0])
+            placement2 = Placement('R', two_boat[1])
+
+        return Action(placement1,placement2)
+    
+    def place_one_boat(self, one_boat: One_boat) -> Action:
+        "Recebe um barco de um e transforma-o numa açao"
+
+        placement1 = Placement("C", one_boat[0])
+
+        return Action(placement1)
+
 
 class Bimaru(Problem):
     def __init__(self, board: Board):
