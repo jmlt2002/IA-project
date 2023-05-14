@@ -20,16 +20,25 @@ from search import (
 
 ROWS = 10
 COLUMNS = 10
+HORIZONTAL = True
+VERTICAL = False
 
 #USEFULL DEFINITIONS
 Hint = (str, bool)
 Position = (int, int)
-Action = (str, Position)
+Placement = (str, Position)
+Action = tuple(Placement)
+
+#acoes = [four_boat1, four_boat2]
+#acoes = [(4_cenas), (4cenas)]
+#acoes = [(('L',pos),('M', pos),('M', pos),('R', pos)) , (('L',pos),('M', pos),('M', pos),('R', pos))]
+         #---primeiro barco----------------------------  segundo_barco-------------------------------
+
 
 #BOATS
-Four_boat = (Position, Position, Position, Position, str)
-Three_boat = (Position, Position, Position, str)
-Two_boat = (Position, Position, str) #last str indicates direction
+Four_boat = (Position, Position, Position, Position, bool)
+Three_boat = (Position, Position, Position, bool)
+Two_boat = (Position, Position, bool) #last str indicates direction
 One_boat = Position
 
 class BimaruState:
@@ -96,6 +105,7 @@ class Board:
         #read rows values
         rows_raw = input().split()
         self.rows = rows_raw[1:]
+        self.initial_row_value = np.array(self.rows, dtype=int)
         self.rows = np.array(self.rows, dtype=int)
         for i in range(len(self.rows)):
             self.rows[i] = int(self.rows[i])
@@ -103,6 +113,7 @@ class Board:
         #read columns values
         columns_raw = input().split()
         self.columns = columns_raw[1:]
+        self.initial_column_value = np.array(self.columns, dtype=int)
         self.columns = np.array(self.columns, dtype=int)
         for i in range(len(self.columns)):
             if(self.columns[i] == 0):
@@ -120,7 +131,6 @@ class Board:
             if(hint[3] != 'W'):
                 self.rows[int(hint[1])] -= 1
                 self.columns[int(hint[2])] -= 1
-        # TODO: CHECK IF IS A LETTER
 
             if(hint[3] == 'M'):
                 self.fill_water_around_middle(int(hint[1]), int(hint[2]), hint[3])
@@ -144,7 +154,6 @@ class Board:
                 for j in range(len(self.rows)):
                     if(not self.board[j][i].isalpha()):
                         self.board[j][i] = 'W'
-
         pass
 
     def print_board(self):
@@ -273,20 +282,75 @@ class Board:
         pass
     #---------------------------------------------------------------------
 
-    def look_for_four_boat(self) -> tuple(Four_boat):
-        "procura no tabuleiro espacos onde colocar barcos de 4"
+    def four_boats_line(self, four_boats: tuple, row):
+        "Procura numa linha(row) quatro posicoes seguidas para colocar um barco"
+        "e armazena-os no em four_boats"
+        for column in range(COLUMNS-3):
+            if self.board[row][column] == 'L' or self.board[row][column] == '0':
+                second_pos = self.board[row][column+1]
+                third_pos = self.board[row][column+2]
+                fourth_pos = self.board[row][column+3]
+                if ((second_pos == 'M' or second_pos == '0') and
+                    (third_pos == 'M' or third_pos == '0') and
+                    (fourth_pos == 'R' or fourth_pos == '0')):
+                        four_boats.__add__(Four_boat((row,column),(row,column+1),
+                                            (row,column+2), (row,column+3), HORIZONTAL))
         pass
 
+    def four_boats_column(self, four_boats:tuple, column):
+        "Procura numa coluna(column) quatro posições seguidas para colocar um barco"
+        "e armazena-os no em four_boats"
+
+        for row in range(ROWS-3):
+            if self.board[row][column] == 'T' or self.board[row][column] == '0':
+                second_pos = self.board[row+1][column]
+                third_pos = self.board[row+2][column]
+                fourth_pos = self.board[row+3][column]
+                if ((second_pos == 'M' or second_pos == '0') and
+                    (third_pos == 'M' or third_pos == '0') and
+                    (fourth_pos == 'B' or fourth_pos == '0')):
+                        four_boats.__add__(Four_boat((row,column),(row+1,column),
+                                            (row+2,column), (row+3,column), VERTICAL))
+        pass
+
+    def look_for_four_boat(self) -> tuple(Four_boat):
+        "Procura no tabuleiro espaços onde colocar barcos de 4"
+        all_four_boats = tuple()
+        for row in self.initial_row_value:
+            if row >= 4:
+                self.four_boats_line(all_four_boats, row)
+        for column in self.initial_column_value:
+            if column >=4:
+                self.four_boats_column(all_four_boats, column)
+        return all_four_boats
+
+    def place_four_boat(self, four_boat:Four_boat) -> Action:
+        "Recebe um barco de quatro e transforma-o numa ação"
+
+        if (Four_boat[4] == VERTICAL):
+            placement1 = Placement('T', four_boat[0])
+            placement2 = Placement('M', four_boat[1])
+            placement3 = Placement('M', four_boat[2])
+            placement4 = Placement('B', four_boat[3])
+
+        else:
+            placement1 = Placement('L', four_boat[0])
+            placement2 = Placement('M', four_boat[1])
+            placement3 = Placement('M', four_boat[2])
+            placement4 = Placement('R', four_boat[3])
+
+        return Action(placement1,placement2,placement3, placement4)
+
     def look_for_three_boat(self) -> tuple(Three_boat):
-        "procura no tabuleiro espacos onde colocar barcos de 3"
+        "Procura no tabuleiro espacos onde colocar barcos de 3"
         pass
 
     def look_for_two_boat(self) -> tuple(Two_boat):
-        "procura no tabuleiro espacos onde colocar barcos de 2"
+        "Procura no tabuleiro espacos onde colocar barcos de 2"
         pass
 
     def look_for_one_boat(self) -> tuple(One_boat):
-        "procura no tabuleiro espacos onde colocar barcos de 1"
+        "Procura no tabuleiro espacos onde colocar barcos de 1"
         pass
 
 class Bimaru(Problem):
@@ -323,6 +387,11 @@ class Bimaru(Problem):
 
     # TODO: outros metodos da classe
 
+def bimaru_read():
+    board = Board()
+    board.parse_instance(board)
+    board.print_board()
+    pass
 
 if __name__ == "__main__":
     # TODO:
@@ -330,11 +399,8 @@ if __name__ == "__main__":
     # Usar uma técnica de procura para resolver a instância,
     # Retirar a solução a partir do nó resultante,
     # Imprimir para o standard output no formato indicado.
+    bimaru_read()
     pass
 
-def bimaru_read():
-    board = Board()
-    board.parse_instance(board)
-    board.print_board()
 
-bimaru_read()
+
