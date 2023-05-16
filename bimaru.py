@@ -558,8 +558,7 @@ class BimaruState:
         """ Aplica uma ação ao estado atual."""
 
         for placement in action:
-            self.board.place(placement)
-        pass
+            return BimaruState(self.board.place(placement))
 
 
 
