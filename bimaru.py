@@ -526,7 +526,8 @@ class Board:
             self.fill_water_around_left(x,y)
         else:
             self.fill_water_around_circle(x,y)
-        pass
+        
+        return self.board
     
 
 
@@ -594,8 +595,6 @@ class Bimaru(Problem):
         pass
 
     # TODO: outros metodos da classe
-
-
 
 
 def bimaru_read():
