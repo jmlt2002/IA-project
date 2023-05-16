@@ -41,18 +41,8 @@ Three_boat = (Position, Position, Position, bool)
 Two_boat = (Position, Position, bool) #last str indicates direction
 One_boat = Position
 
-class BimaruState:
-    state_id = 0
 
-    def __init__(self, board):
-        self.board = board
-        self.id = BimaruState.state_id
-        BimaruState.state_id += 1
 
-    def __lt__(self, other):
-        return self.id < other.id
-
-    # TODO: outros metodos da classe
 
 class Board:
     """Representação interna de um tabuleiro de Bimaru."""
@@ -63,12 +53,17 @@ class Board:
         self.columns = [0]*COLUMNS
         self.initial_row_value = [0]*ROWS   #listas para guardar os valores iniciais das col e lin
         self.initial_column_value = [0]*COLUMNS  #para passar logo a frente na procura de barcos
+        self.remaining_boats = 10
+        self.remaining_four_boats = 1
+        self.remaining_three_boats = 2
+        self.remaining_two_boats = 3
+        self.remaining_one_boats = 4
 
     def get_value(self, row: int, col: int) -> str:
         """Devolve o valor na respetiva posição do tabuleiro."""
         return self.board[row][col]
 
-    def adjacent_vertical_values(self, row: int, col: int) -> (str, str):
+    def adjacent_vertical_values(self, row: int, col: int) -> tuple(str, str):
         """Devolve os valores imediatamente acima e abaixo,
         respectivamente. (acima, abaixo)"""
         if(row == 0):
@@ -77,7 +72,7 @@ class Board:
             return (self.board[row-1][col], 'OUT')
         return (self.board[row-1][col], self.board[row+1][col])
 
-    def adjacent_horizontal_values(self, row: int, col: int) -> (str, str):
+    def adjacent_horizontal_values(self, row: int, col: int) -> tuple(str, str):
         """Devolve os valores imediatamente à esquerda e à direita,
         respectivamente. (esquerda, direita)"""
         if(col == 0):
@@ -135,6 +130,8 @@ class Board:
             if(hint[3] == 'M'):
                 self.fill_water_around_middle(int(hint[1]), int(hint[2]), hint[3])
             elif(hint[3] == 'C'):
+                self.remaining_boats -= 1
+                self.remaining_one_boats -=1
                 self.fill_water_around_circle(int(hint[1]), int(hint[2]), hint[3])
             elif(hint[3] == 'B'):
                 self.fill_water_around_bottom(int(hint[1]), int(hint[2]), hint[3])
@@ -437,11 +434,13 @@ class Board:
             placement3 = Placement('M', four_boat[2])
             placement4 = Placement('R', four_boat[3])
 
+        self.remaining_boats -= 1
+        self.remaining_four_boats -=1
         return Action(placement1,placement2,placement3, placement4)
     
     def place_three_boat(self, three_boat: Three_boat) -> Action:
         "Recebe um barco de tres e transforma-o numa acao"
-
+ 
         if (Three_boat[3] == VERTICAL):
             placement1 = Placement('T', three_boat[0])
             placement2 = Placement('M', three_boat[1])
@@ -452,6 +451,8 @@ class Board:
             placement2 = Placement('M', three_boat[1])
             placement3 = Placement('R', three_boat[2])
 
+        self.remaining_boats -= 1
+        self.remaining_three_boats -=1
         return Action(placement1,placement2,placement3)
     
     def place_two_boat(self, two_boat: Two_boat) -> Action:
@@ -465,6 +466,8 @@ class Board:
             placement1 = Placement('L', two_boat[0])
             placement2 = Placement('R', two_boat[1])
 
+        self.remaining_boats -= 1
+        self.remaining_two_boats -=1
         return Action(placement1,placement2)
     
     def place_one_boat(self, one_boat: One_boat) -> Action:
@@ -472,35 +475,119 @@ class Board:
 
         placement1 = Placement("C", one_boat[0])
 
+        self.remaining_boats -= 0
+        self.remaining_one_boats -=1
         return Action(placement1)
+    
+    def fill_water_row(self , row):
+        """ Preenche com agua a respetiva linha do board"""
+
+        for column in range(COLUMNS):
+            if (self.board[row][column] == '0'):
+                self.board[row][column] = 'W'
+    
+    def fill_water_column(self , column):
+        """ Preenche com agua a respetiva coluna do board"""
+
+        for row in range(ROWS):
+            if (self.board[row][column] == '0'):
+                self.board[row][column] = 'W'
+
+    def place(self, placement: Placement):
+        """Recebe um placement com um simbolo e uma posicao -> Placement(simbolo,posicao)
+        e coloca esse simbolo na respetiva posicao do board """
+
+        x = placement[1][0]
+        y = placement[1][1]
+        simbol = placement[0]
+
+        self.board[x][y] = simbol
+
+        ##reduzir colunas e linhas
+        self.rows[x] -= 1
+        self.columns[y] -= 1
+
+        #preencher linhas e colunas que chegaram a 0
+        if (self.rows[x] == 0):
+            self.fill_water_row(x)
+        if (self.columns[y] == 0):
+            self.fill_water_column(y)
+
+        #preencher com agua a volta dos simbolos 
+        if (simbol == 'T'):
+            self.fill_water_around_top(x,y)     #ESTAS FUNCOES TEM
+        elif (simbol == 'B'):                   # QUE SER ADAPTADAS
+            self.fill_water_around_bottom(x,y)         # !!!!!!
+        elif (simbol == 'M'):
+            self.fill_water_around_middle(x,y)
+        elif (simbol == 'R'):
+            self.fill_water_around_right(x,y)
+        elif (simbol == 'L'):
+            self.fill_water_around_left(x,y)
+        else:
+            self.fill_water_around_circle(x,y)
+        pass
+    
+
+
+
+class BimaruState:
+    state_id = 0
+
+    def __init__(self, board:Board):
+        self.board = board
+        self.id = BimaruState.state_id
+        BimaruState.state_id += 1
+
+    def __lt__(self, other):
+        return self.id < other.id
+
+    def look_for_actions(self) -> tuple(Action):
+        """ Procura por acoes a realizar no estado atual"""
+
+        if (self.board.remaining_four_boats >0):
+            return self.board.look_for_four_boat()
+        if (self.board.remaining_three_boats >0):
+            return self.board.look_for_three_boat()
+        if (self.board.remaining_four_boats >0):
+            return self.board.look_for_two_boat()
+        if (self.board.remaining_two_boats >0):
+            return self.board.look_for_one_boat()
+    
+    def execute(self, action:Action):
+        """ Aplica uma acao ao estado atual"""
+
+        for placement in action:
+            self.board.place(placement)
+        pass
+
+
 
 
 class Bimaru(Problem):
+
     def __init__(self, board: Board):
         """O construtor especifica o estado inicial."""
-        # TODO:
+        self.initial = BimaruState(Board)
         pass
 
     def actions(self, state: BimaruState):
         """Retorna uma lista de ações que podem ser executadas a
         partir do estado passado como argumento."""
-        # TODO:
-        pass
+        return state.look_for_actions()
 
-    def result(self, state: BimaruState, action):
+    def result(self, state: BimaruState, action:Action):
         """Retorna o estado resultante de executar a 'action' sobre
         'state' passado como argumento. A ação a executar deve ser uma
         das presentes na lista obtida pela execução de
         self.actions(state)."""
-        # TODO:
-        pass
+        return state.execute(action)
 
     def goal_test(self, state: BimaruState):
         """Retorna True se e só se o estado passado como argumento é
         um estado objetivo. Deve verificar se todas as posições do tabuleiro
         estão preenchidas de acordo com as regras do problema."""
-        # TODO:
-        pass
+        return state.board.remaining_boats == 0
 
     def h(self, node: Node):
         """Função heuristica utilizada para a procura A*."""
@@ -508,6 +595,9 @@ class Bimaru(Problem):
         pass
 
     # TODO: outros metodos da classe
+
+
+
 
 def bimaru_read():
     board = Board()
