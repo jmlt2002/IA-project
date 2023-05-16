@@ -23,7 +23,7 @@ COLUMNS = 10
 HORIZONTAL = True
 VERTICAL = False
 
-#USEFULL DEFINITIONS
+#USEFUL DEFINITIONS
 Hint = (str, bool)
 Position = (int, int)
 Placement = (str, Position)
@@ -63,7 +63,7 @@ class Board:
         """Devolve o valor na respetiva posição do tabuleiro."""
         return self.board[row][col]
 
-    def adjacent_vertical_values(self, row: int, col: int) -> tuple(str, str):
+    def adjacent_vertical_values(self, row: int, col: int) -> (str, str):
         """Devolve os valores imediatamente acima e abaixo,
         respectivamente. (acima, abaixo)"""
         if(row == 0):
@@ -72,7 +72,7 @@ class Board:
             return (self.board[row-1][col], 'OUT')
         return (self.board[row-1][col], self.board[row+1][col])
 
-    def adjacent_horizontal_values(self, row: int, col: int) -> tuple(str, str):
+    def adjacent_horizontal_values(self, row: int, col: int) -> (str, str):
         """Devolve os valores imediatamente à esquerda e à direita,
         respectivamente. (esquerda, direita)"""
         if(col == 0):
@@ -543,7 +543,7 @@ class BimaruState:
         return self.id < other.id
 
     def look_for_actions(self) -> tuple(Action):
-        """ Procura por acoes a realizar no estado atual"""
+        """ Procura por ações a realizar no estado atual."""
 
         if (self.board.remaining_four_boats >0):
             return self.board.look_for_four_boat()
@@ -555,7 +555,7 @@ class BimaruState:
             return self.board.look_for_one_boat()
     
     def execute(self, action:Action):
-        """ Aplica uma acao ao estado atual"""
+        """ Aplica uma ação ao estado atual."""
 
         for placement in action:
             self.board.place(placement)
