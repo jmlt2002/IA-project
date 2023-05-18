@@ -59,6 +59,21 @@ class Board:
         self.remaining_two_boats = 3
         self.remaining_one_boats = 4
 
+    def new_duplicate_board(self):
+        duplicate_board = Board()
+        duplicate_board.board = np.copy(self.board)
+        duplicate_board.rows= np.copy(self.rows)
+        duplicate_board.columns = np.copy(self.columns)
+        duplicate_board.initial_row_value = np.copy(self.initial_row_value)   #listas para guardar os valores iniciais das col e lin
+        duplicate_board.initial_column_value = np.copy(self.initial_column_value)  #para passar logo a frente na procura de barcos
+        duplicate_board.remaining_boats = self.remaining_boats
+        duplicate_board.remaining_four_boats = self.remaining_four_boats
+        duplicate_board.remaining_three_boats = self.remaining_three_boats
+        duplicate_board.remaining_two_boats = self.remaining_two_boats
+        duplicate_board.remaining_one_boats = self.remaining_one_boats
+        return duplicate_board
+        
+    
     def get_value(self, row: int, col: int) -> str:
         """Devolve o valor na respetiva posição do tabuleiro."""
         return self.board[row][col]
@@ -526,8 +541,7 @@ class Board:
             self.fill_water_around_left(x,y)
         else:
             self.fill_water_around_circle(x,y)
-        
-        return self.board
+        pass
     
 
 
@@ -558,9 +572,11 @@ class BimaruState:
     def execute(self, action:Action):
         """ Aplica uma ação ao estado atual."""
 
+        child = BimaruState(self.board.new_duplicate_board())
         for placement in action:
-            return BimaruState(self.board.place(placement))
-
+            child.board.place(placement)
+        return child
+    
 
 
 
@@ -595,6 +611,8 @@ class Bimaru(Problem):
         pass
 
     # TODO: outros metodos da classe
+
+
 
 
 def bimaru_read():
