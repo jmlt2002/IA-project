@@ -11,7 +11,6 @@ import numpy as np
 from search import (
     Problem,
     Node,
-    depth_first_graph_search,
     astar_search,
     breadth_first_tree_search,
     depth_first_tree_search,
@@ -143,15 +142,17 @@ class Board:
         for i in range(hint_total):
             hint = input().split()
             self.board[int(hint[1])][int(hint[2])] = hint[3]
-            if(hint[3] != 'W'):
-                self.rows[int(hint[1])] -= 1
-                self.columns[int(hint[2])] -= 1
+            #if(hint[3] != 'W'):
+                #self.rows[int(hint[1])] -= 1
+                #self.columns[int(hint[2])] -= 1
 
             if(hint[3] == 'M'):
                 self.fill_water_around_middle(int(hint[1]), int(hint[2]))
             elif(hint[3] == 'C'):
+                self.rows[int(hint[1])] -= 1
+                self.columns[int(hint[2])] -= 1
                 self.remaining_boats -= 1
-                self.remaining_one_boats -=1
+                self.remaining_one_boats -= 1
                 self.fill_water_around_circle(int(hint[1]), int(hint[2]))
             elif(hint[3] == 'B'):
                 self.fill_water_around_bottom(int(hint[1]), int(hint[2]))
@@ -355,9 +356,11 @@ class Board:
         print("ONE_BOAT-> ")
         print(one_boat)
 
-        placement1 = ("C", one_boat[0])
+        placement1 = ("C", one_boat)
 
-        return (placement1)
+        print("PLACEMENT->")
+        print(placement1)
+        return (placement1,)
     
     def fill_water_row(self , row):
         """ Preenche com agua a respetiva linha do board"""
@@ -377,14 +380,16 @@ class Board:
         """Recebe um placement com um simbolo e uma posicao -> Placement(simbolo,posicao)
         e coloca esse simbolo na respetiva posicao do board """
 
+        print("PLACEMENT(place)->")
+        print(placement)
         x = placement[1][0]
         y = placement[1][1]
         simbol = placement[0]
 
         # reduzir colunas e linhas
-        if(self.board[x][y] == '0'):
-            self.rows[x] -= 1
-            self.columns[y] -= 1
+        #if(self.board[x][y] == '0'):
+        self.rows[x] -= 1
+        self.columns[y] -= 1
 
         self.board[x][y] = simbol
 
@@ -396,9 +401,9 @@ class Board:
 
         #preencher com agua a volta dos simbolos 
         if (simbol == 'T'):
-            self.fill_water_around_top(x,y)     #ESTAS FUNCOES TEM
-        elif (simbol == 'B'):                   # QUE SER ADAPTADAS
-            self.fill_water_around_bottom(x,y)         # !!!!!!
+            self.fill_water_around_top(x,y)     
+        elif (simbol == 'B'):                 
+            self.fill_water_around_bottom(x,y)         
         elif (simbol == 'M'):
             self.fill_water_around_middle(x,y)
         elif (simbol == 'R'):
@@ -518,10 +523,10 @@ class Board:
 
         all_four_boats = list()
         for row in range(ROWS):
-            if self.rows[row] > 0 and self.initial_row_value[row] >= 4:
+            if self.rows[row] >= 4 and self.initial_row_value[row] >= 4:
                 self.four_boats_line(all_four_boats, row)
         for column in range(COLUMNS):
-            if self.columns[column] > 0 and self.initial_column_value[column] >= 4:
+            if self.columns[column] >= 4 and self.initial_column_value[column] >= 4:
                 self.four_boats_column(all_four_boats, column)
 
         return all_four_boats
@@ -531,10 +536,10 @@ class Board:
 
         all_three_boats = list()
         for row in range(ROWS):
-            if self.rows[row] > 0 and self.initial_row_value[row] >= 3:
+            if self.rows[row] >= 3 and self.initial_row_value[row] >= 3:
                 self.three_boats_line(all_three_boats, row)
         for column in range(COLUMNS):
-            if self.columns[column] > 0 and self.initial_column_value[column] >= 3:
+            if self.columns[column] >= 3 and self.initial_column_value[column] >= 3:
                 self.three_boats_column(all_three_boats, column)
 
         return all_three_boats
@@ -544,10 +549,10 @@ class Board:
 
         all_two_boats = list()
         for row in range(ROWS):
-            if self.rows[row] > 0 and self.initial_row_value[row] >= 2:
+            if self.rows[row] >= 2 and self.initial_row_value[row] >= 2:
                 self.two_boats_line(all_two_boats, row)
         for column in range(COLUMNS):
-            if self.columns[column] > 0 and self.initial_column_value[column] >= 2:
+            if self.columns[column] >= 2 and self.initial_column_value[column] >= 2:
                 self.two_boats_column(all_two_boats, column)
 
         return all_two_boats
@@ -557,9 +562,11 @@ class Board:
 
         all_one_boats = list()
         for row in range(ROWS):
-            if self.rows[row] > 0 and self.initial_row_value[row] >= 1:
+            if self.rows[row] >= 1 and self.initial_row_value[row] >= 1:
                 self.one_boats(all_one_boats, row)
 
+        print("ALL_ONE_BOATS->")
+        print(all_one_boats)
         return all_one_boats
 
     
@@ -593,8 +600,7 @@ class BimaruState:
 
         child = BimaruState(self.board.new_duplicate_board())
         size = len(action)
-        print("size->")
-        print(size)
+
         child.board.remaining_boats -= 1
         if (size == 4):
             child.board.remaining_four_boats -= 1
@@ -604,8 +610,14 @@ class BimaruState:
             child.board.remaining_two_boats -= 1
         else:
             child.board.remaining_one_boats -= 1
+
+        print("ACTION->")
+        print(action)
+        print("PLACEMENTS_IN_A->")
         for placement in action:
+            print(placement)
             child.board.place(placement)
+        
         return child
     
 
@@ -660,12 +672,13 @@ if __name__ == "__main__":
     # Imprimir para o standard output no formato indicado.
     board = bimaru_read()
     bimaru_problem = Bimaru(board)
-    actions = bimaru_problem.actions(bimaru_problem.initial)
+    """actions = bimaru_problem.actions(bimaru_problem.initial)
     print("actions->")
     print(actions)
     child = bimaru_problem.result(bimaru_problem.initial, actions[0])
     print("child->")
     child.board.print_board()
+    #--------------------------------------------------------------------
     actions2 = bimaru_problem.actions(child)
     print("actions->")
     print(actions2)
@@ -676,5 +689,24 @@ if __name__ == "__main__":
     print(actions3)
     child3 = bimaru_problem.result(child2, actions3[0])
     child3.board.print_board()
+    #-------------------------------------------------------------------
+    actions4 = bimaru_problem.actions(child3)
+    print("ACTIONS ->")
+    print(actions4)
+    child4 = bimaru_problem.result(child3, actions4[0])
+    child4.board.print_board()
+    actions5 = bimaru_problem.actions(child4)
+    print("ACTIONS ->")
+    print(actions5)
+    child5 = bimaru_problem.result(child4, actions5[0])
+    child5.board.print_board()
+    actions6 = bimaru_problem.actions(child5)
+    print("ACTIONS ->")
+    print(actions6)
+    child6 = bimaru_problem.result(child5, actions6[0])
+    child6.board.print_board()"""
+    result = depth_first_tree_search(bimaru_problem)
+    result.state.board.print_board()
+    pass
 
 
