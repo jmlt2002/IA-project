@@ -62,6 +62,8 @@ class Board:
         self.remaining_three_boats = 2
         self.remaining_two_boats = 3
         self.remaining_one_boats = 4
+        self.has_hint_lines = [0]*ROWS # lista para verificar que a linha tem uma hint n verificada
+        self.has_hint_columns = [0]*COLUMNS # lista para verificar que a coluna tem uma hint n verificada
 
     def new_duplicate_board(self):
         duplicate_board = Board()
@@ -75,6 +77,8 @@ class Board:
         duplicate_board.remaining_three_boats = self.remaining_three_boats
         duplicate_board.remaining_two_boats = self.remaining_two_boats
         duplicate_board.remaining_one_boats = self.remaining_one_boats
+        duplicate_board.has_hint_lines = np.copy(self.has_hint_lines)
+        duplicate_board.has_hint_columns = np.copy(self.has_hint_columns)
         return duplicate_board
         
     
@@ -142,25 +146,33 @@ class Board:
         for i in range(hint_total):
             hint = input().split()
             self.board[int(hint[1])][int(hint[2])] = hint[3]
-            #if(hint[3] != 'W'):
-                #self.rows[int(hint[1])] -= 1
-                #self.columns[int(hint[2])] -= 1
-
-            if(hint[3] == 'M'):
-                self.fill_water_around_middle(int(hint[1]), int(hint[2]))
-            elif(hint[3] == 'C'):
+            if(hint[3] != 'W'):
                 self.rows[int(hint[1])] -= 1
                 self.columns[int(hint[2])] -= 1
+
+            if(hint[3] == 'M'):
+                self.has_hint_lines[int(hint[1])] += 1
+                self.has_hint_columns[int(hint[2])] += 1
+                self.fill_water_around_middle(int(hint[1]), int(hint[2]))
+            elif(hint[3] == 'C'):
                 self.remaining_boats -= 1
                 self.remaining_one_boats -= 1
                 self.fill_water_around_circle(int(hint[1]), int(hint[2]))
             elif(hint[3] == 'B'):
+                self.has_hint_lines[int(hint[1])] += 1
+                self.has_hint_columns[int(hint[2])] += 1
                 self.fill_water_around_bottom(int(hint[1]), int(hint[2]))
             elif(hint[3] == 'T'):
+                self.has_hint_lines[int(hint[1])] += 1
+                self.has_hint_columns[int(hint[2])] += 1
                 self.fill_water_around_top(int(hint[1]), int(hint[2]))
             elif(hint[3] == 'L'):
+                self.has_hint_lines[int(hint[1])] += 1
+                self.has_hint_columns[int(hint[2])] += 1
                 self.fill_water_around_left(int(hint[1]), int(hint[2]))
             elif(hint[3] == 'R'):
+                self.has_hint_lines[int(hint[1])] += 1
+                self.has_hint_columns[int(hint[2])] += 1
                 self.fill_water_around_right(int(hint[1]), int(hint[2]))
 
         for i in range(10):
@@ -391,6 +403,9 @@ class Board:
         self.rows[x] -= 1
         self.columns[y] -= 1
 
+        if (self.board[x][y] != '0'):
+            self.has_hint_lines[x] -= 1
+            self.has_hint_columns[y] -= 1
         self.board[x][y] = simbol
 
         #preencher linhas e colunas que chegaram a 0
@@ -419,7 +434,17 @@ class Board:
         "e armazena-os no em four_boats"
 
         for column in range(COLUMNS-3):
-            if(not ((column > 0 and self.board[row][column-1] != '0') or (column+3 < 9 and self.board[row][column+4] != '0'))):            
+            if (self.columns[column]<=0): #and self.has_hint_columns[column]<=0):
+                continue
+            if (self.columns[column+1]<=0): #and self.has_hint_columns[column+1]<=0):
+                continue
+            if (self.columns[column+2]<=0): #and self.has_hint_columns[column+2]<=0):
+                continue
+            if (self.columns[column+3]<=0): #and self.has_hint_columns[column+3]<=0):
+                continue      
+            
+            if(not ((column > 0 and self.board[row][column-1] != '0') or (column+3 < 9 and self.board[row][column+4] != '0'))):
+
                 if self.board[row][column] == 'L' or self.board[row][column] == '0':
                     second_pos = self.board[row][column+1]
                     third_pos = self.board[row][column+2]
@@ -437,7 +462,17 @@ class Board:
         "e armazena-os no em four_boats"
 
         for row in range(ROWS-3):
+            if (self.rows[row]<=0): #and self.has_hint_lines[row]<=0):
+                continue
+            if (self.rows[row+1]<=0): #and self.has_hint_lines[row+1]<=0):
+                continue
+            if (self.rows[row+2]<=0): #and self.has_hint_lines[row+2]<=0):
+                continue
+            if (self.rows[row+3]<=0): #and self.has_hint_lines[row+3]<=0):
+                continue
+            
             if(not ((row > 0 and self.board[row - 1][column] != '0') or (row+3 < 9 and self.board[row+4][column] != '0'))):
+
                 if self.board[row][column] == 'T' or self.board[row][column] == '0':
                     second_pos = self.board[row+1][column]
                     third_pos = self.board[row+2][column]
@@ -455,6 +490,13 @@ class Board:
         "e armazena-os no em three_boats"
 
         for column in range(COLUMNS-2):
+            if (self.columns[column]<=0): #and self.has_hint_columns[column]<=0):
+                continue
+            if (self.columns[column+1]<=0): #and self.has_hint_columns[column+1]<=0):
+                continue
+            if (self.columns[column+2]<=0): #and self.has_hint_columns[column+2]<=0):
+                continue
+
             if(not ((column > 0 and self.board[row][column-1] != '0') or (column+2 < 9 and self.board[row][column+3] != '0'))):
                 if self.board[row][column] == 'L' or self.board[row][column] == '0':
                     second_pos = self.board[row][column+1]
@@ -471,6 +513,13 @@ class Board:
         "e armazena-os no em three_boats"
 
         for row in range(ROWS-2):
+            if (self.rows[row]<=0): #and self.has_hint_lines[row]<=0):
+                continue
+            if (self.rows[row+1]<=0): #and self.has_hint_lines[row+1]<=0):
+                continue
+            if (self.rows[row+2]<=0): #and self.has_hint_lines[row+2]<=0):
+                continue
+
             if(not ((row > 0 and self.board[row - 1][column] != '0') or (row+2 < 9 and self.board[row+3][column] != '0'))):
                 continue
 
@@ -489,6 +538,11 @@ class Board:
         "e armazena-os no em two_boats"
 
         for column in range(COLUMNS-1):
+            if (self.columns[column]<=0): #and self.has_hint_columns[column]<=0):
+                continue
+            if (self.columns[column+1]<=0): #and self.has_hint_columns[column+1]<=0):
+                continue
+
             if self.board[row][column] == 'L' or self.board[row][column] == '0':
                 second_pos = self.board[row][column+1]
                 if (second_pos == 'R' or second_pos == '0'):
@@ -501,6 +555,11 @@ class Board:
         "e armazena-os no em two_boats"
 
         for row in range(ROWS-1):
+            if (self.rows[row]<=0): #and self.has_hint_lines[row]<=0):
+                continue
+            if (self.rows[row+1]<=0): #and self.has_hint_lines[row+1]<=0):
+                continue
+
             if self.board[row][column] == 'T' or self.board[row][column] == '0':
                 second_pos = self.board[row+1][column]
                 if (second_pos == 'B' or second_pos == '0'):
@@ -513,6 +572,9 @@ class Board:
         "e armazena-o em one_boats"
         
         for column in range(COLUMNS-1):
+            if (self.columns[column]<=0): #and self.has_hint_columns[column]<=0):
+                continue
+
             if self.board[row][column] == '0':
                 o_boat = ((row,column))
                 one_boats.append(self.place_one_boat(o_boat))
@@ -523,10 +585,10 @@ class Board:
 
         all_four_boats = list()
         for row in range(ROWS):
-            if self.rows[row] >= 4 and self.initial_row_value[row] >= 4:
+            if ((self.rows[row] >= 4 or self.has_hint_lines[row]>0) and self.initial_row_value[row] >= 4):
                 self.four_boats_line(all_four_boats, row)
         for column in range(COLUMNS):
-            if self.columns[column] >= 4 and self.initial_column_value[column] >= 4:
+            if ((self.columns[column] >= 4 or self.has_hint_columns[column]>0) and self.initial_column_value[column] >= 4):
                 self.four_boats_column(all_four_boats, column)
 
         return all_four_boats
@@ -536,10 +598,10 @@ class Board:
 
         all_three_boats = list()
         for row in range(ROWS):
-            if self.rows[row] >= 3 and self.initial_row_value[row] >= 3:
+            if ((self.rows[row] >= 3 or self.has_hint_lines[row]>0) and self.initial_row_value[row] >= 3):
                 self.three_boats_line(all_three_boats, row)
         for column in range(COLUMNS):
-            if self.columns[column] >= 3 and self.initial_column_value[column] >= 3:
+            if ((self.columns[column] >= 3 or self.has_hint_columns[column]>0) and self.initial_column_value[column] >= 3):
                 self.three_boats_column(all_three_boats, column)
 
         return all_three_boats
@@ -549,10 +611,10 @@ class Board:
 
         all_two_boats = list()
         for row in range(ROWS):
-            if self.rows[row] >= 2 and self.initial_row_value[row] >= 2:
+            if ((self.rows[row] >= 2 or self.has_hint_lines[row]>0) and self.initial_row_value[row] >= 2):
                 self.two_boats_line(all_two_boats, row)
         for column in range(COLUMNS):
-            if self.columns[column] >= 2 and self.initial_column_value[column] >= 2:
+            if ((self.columns[column] >= 2 or self.has_hint_columns[column]>0) and self.initial_column_value[column] >= 2):
                 self.two_boats_column(all_two_boats, column)
 
         return all_two_boats
@@ -562,7 +624,7 @@ class Board:
 
         all_one_boats = list()
         for row in range(ROWS):
-            if self.rows[row] >= 1 and self.initial_row_value[row] >= 1:
+            if ((self.rows[row] >= 1 or self.has_hint_lines[row]>0) and self.initial_row_value[row] >= 1):
                 self.one_boats(all_one_boats, row)
 
         print("ALL_ONE_BOATS->")
@@ -706,7 +768,10 @@ if __name__ == "__main__":
     child6 = bimaru_problem.result(child5, actions6[0])
     child6.board.print_board()"""
     result = depth_first_tree_search(bimaru_problem)
-    result.state.board.print_board()
+    if (result != None):
+        result.state.board.print_board()
+    else:
+        print("NO RESULT FOUND")
     pass
 
 
