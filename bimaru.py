@@ -62,8 +62,6 @@ class Board:
         self.remaining_three_boats = 2
         self.remaining_two_boats = 3
         self.remaining_one_boats = 4
-        self.has_hint_lines = [0]*ROWS # lista para verificar que a linha tem uma hint n verificada
-        self.has_hint_columns = [0]*COLUMNS # lista para verificar que a coluna tem uma hint n verificada
 
     def new_duplicate_board(self):
         duplicate_board = Board()
@@ -77,8 +75,6 @@ class Board:
         duplicate_board.remaining_three_boats = self.remaining_three_boats
         duplicate_board.remaining_two_boats = self.remaining_two_boats
         duplicate_board.remaining_one_boats = self.remaining_one_boats
-        duplicate_board.has_hint_lines = np.copy(self.has_hint_lines)
-        duplicate_board.has_hint_columns = np.copy(self.has_hint_columns)
         return duplicate_board
         
     
@@ -151,28 +147,20 @@ class Board:
                 self.columns[int(hint[2])] -= 1"""
 
             if(hint[3] == 'M'):
-                self.has_hint_lines[int(hint[1])] += 1
-                self.has_hint_columns[int(hint[2])] += 1
                 self.fill_water_around_middle(int(hint[1]), int(hint[2]))
             elif(hint[3] == 'C'):
+                self.rows[int(hint[1])] -= 1
+                self.columns[int(hint[2])] -= 1
                 self.remaining_boats -= 1
                 self.remaining_one_boats -= 1
                 self.fill_water_around_circle(int(hint[1]), int(hint[2]))
             elif(hint[3] == 'B'):
-                self.has_hint_lines[int(hint[1])] += 1
-                self.has_hint_columns[int(hint[2])] += 1
                 self.fill_water_around_bottom(int(hint[1]), int(hint[2]))
             elif(hint[3] == 'T'):
-                self.has_hint_lines[int(hint[1])] += 1
-                self.has_hint_columns[int(hint[2])] += 1
                 self.fill_water_around_top(int(hint[1]), int(hint[2]))
             elif(hint[3] == 'L'):
-                self.has_hint_lines[int(hint[1])] += 1
-                self.has_hint_columns[int(hint[2])] += 1
                 self.fill_water_around_left(int(hint[1]), int(hint[2]))
             elif(hint[3] == 'R'):
-                self.has_hint_lines[int(hint[1])] += 1
-                self.has_hint_columns[int(hint[2])] += 1
                 self.fill_water_around_right(int(hint[1]), int(hint[2]))
 
         for i in range(10):
@@ -391,9 +379,6 @@ class Board:
         self.rows[x] -= 1
         self.columns[y] -= 1
 
-        if (self.board[x][y] != '0'):
-            self.has_hint_lines[x] -= 1
-            self.has_hint_columns[y] -= 1
         self.board[x][y] = simbol
 
         #preencher linhas e colunas que chegaram a 0
@@ -522,9 +507,6 @@ class Board:
         "e armazena-o em one_boats"
         
         for column in range(COLUMNS-1):
-            if (self.columns[column]<=0): #and self.has_hint_columns[column]<=0):
-                continue
-
             if self.board[row][column] == '0':
                 o_boat = ((row,column))
                 one_boats.append(self.place_one_boat(o_boat))
@@ -574,7 +556,7 @@ class Board:
 
         all_one_boats = list()
         for row in range(ROWS):
-            if ((self.rows[row] >= 1 or self.has_hint_lines[row]>0) and self.initial_row_value[row] >= 1):
+            if self.rows[row] >= 1 and self.initial_row_value[row] >= 1:
                 self.one_boats(all_one_boats, row)
 
         return all_one_boats
