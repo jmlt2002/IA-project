@@ -62,6 +62,7 @@ class Board:
         self.remaining_three_boats = 2
         self.remaining_two_boats = 3
         self.remaining_one_boats = 4
+        self.hints = 0
 
     def new_duplicate_board(self):
         duplicate_board = Board()
@@ -75,6 +76,7 @@ class Board:
         duplicate_board.remaining_three_boats = self.remaining_three_boats
         duplicate_board.remaining_two_boats = self.remaining_two_boats
         duplicate_board.remaining_one_boats = self.remaining_one_boats
+        duplicate_board.hints = self.hints
         return duplicate_board
         
     
@@ -138,21 +140,23 @@ class Board:
 
         #read hints
         hint_total = int(input())
+        self.hints = hint_total
 
         for i in range(hint_total):
             hint = input().split()
             self.board[int(hint[1])][int(hint[2])] = hint[3]
-            """if(hint[3] != 'W'):
-                self.rows[int(hint[1])] -= 1
-                self.columns[int(hint[2])] -= 1"""
 
-            if(hint[3] == 'M'):
+            if(hint[3] == 'W'):
+                self.hints -= 1
+
+            elif(hint[3] == 'M'):
                 self.fill_water_around_middle(int(hint[1]), int(hint[2]))
             elif(hint[3] == 'C'):
                 self.rows[int(hint[1])] -= 1
                 self.columns[int(hint[2])] -= 1
                 self.remaining_boats -= 1
                 self.remaining_one_boats -= 1
+                self.hints -= 1
                 self.fill_water_around_circle(int(hint[1]), int(hint[2]))
             elif(hint[3] == 'B'):
                 self.fill_water_around_bottom(int(hint[1]), int(hint[2]))
@@ -375,7 +379,9 @@ class Board:
         simbol = placement[0]
 
         # reduzir colunas e linhas
-        """if(self.board[x][y] == '0'):"""
+        if(self.board[x][y] != '0'):
+            self.hints -= 1
+        
         self.rows[x] -= 1
         self.columns[y] -= 1
 
@@ -406,9 +412,21 @@ class Board:
         "Procura numa linha(row) quatro posicoes seguidas para colocar um barco"
         "e armazena-os no em four_boats"
 
+
         for column in range(COLUMNS-3):
+
+            if (self.columns[column] <= 0):
+                continue
+            if (self.columns[column+1] <= 0):
+                continue
+            if (self.columns[column+2] <= 0):
+                continue
+            if (self.columns[column+3] <= 0):
+                continue
+
             if(not ((column > 0 and self.board[row][column-1] != '0' and self.board[row][column-1] != 'W') or 
-                    (column+3 < 9 and self.board[row][column+4] != '0' and self.board[row][column+4] != 'W'))):            
+                    (column+3 < 9 and self.board[row][column+4] != '0' and self.board[row][column+4] != 'W'))):
+                            
                 if self.board[row][column] == 'L' or self.board[row][column] == '0':
                     second_pos = self.board[row][column+1]
                     third_pos = self.board[row][column+2]
@@ -426,8 +444,19 @@ class Board:
         "e armazena-os no em four_boats"
         
         for row in range(ROWS-3):
+
+            if (self.rows[row] <= 0):
+                continue
+            if (self.rows[row+1] <= 0):
+                continue
+            if (self.rows[row+2] <= 0):
+                continue
+            if (self.rows[row+3] <= 0):
+                continue
+
             if(not ((row > 0 and self.board[row-1][column] != '0' and self.board[row-1][column] != 'W') or 
                     (row+3 < 9 and self.board[row+4][column] != '0' and self.board[row+4][column] != 'W'))):
+                
                 if self.board[row][column] == 'T' or self.board[row][column] == '0':
                     second_pos = self.board[row+1][column]
                     third_pos = self.board[row+2][column]
@@ -445,8 +474,17 @@ class Board:
         "e armazena-os no em three_boats"
 
         for column in range(COLUMNS-2):
+
+            if (self.columns[column] <= 0):
+                continue
+            if (self.columns[column+1] <= 0):
+                continue
+            if (self.columns[column+2] <= 0):
+                continue
+
             if(not ((column > 0 and self.board[row][column-1] != '0' and self.board[row][column-1] != 'W') or 
                     (column+2 < 9 and self.board[row][column+3] != '0' and self.board[row][column+3] != 'W'))):
+                
                 if self.board[row][column] == 'L' or self.board[row][column] == '0':
                     second_pos = self.board[row][column+1]
                     third_pos = self.board[row][column+2]
@@ -462,8 +500,18 @@ class Board:
         "e armazena-os no em three_boats"
 
         for row in range(ROWS-2):
+
+            if (self.rows[row] <= 0):
+                continue
+            if (self.rows[row+1] <= 0):
+                continue
+            if (self.rows[row+2] <= 0):
+                continue
+
+
             if(not ((row > 0 and self.board[row - 1][column] != '0' and self.board[row - 1][column] != 'W') or 
                     (row+2 < 9 and self.board[row+3][column] != '0' and self.board[row+3][column] != 'W'))):
+                
                 if self.board[row][column] == 'T' or self.board[row][column] == '0':
                     second_pos = self.board[row+1][column]
                     third_pos = self.board[row+2][column]
@@ -479,8 +527,15 @@ class Board:
         "e armazena-os no em two_boats"
 
         for column in range(COLUMNS-1):
+
+            if (self.columns[column] <= 0):
+                continue
+            if (self.columns[column+1] <= 0):
+                continue
+
             if(not ((column > 0 and self.board[row][column-1] != '0' and self.board[row][column-1] != 'W') or 
                     (column+2 < 9 and self.board[row][column+2] != '0' and self.board[row][column+2] != 'W'))):
+                
                 if self.board[row][column] == 'L' or self.board[row][column] == '0':
                     second_pos = self.board[row][column+1]
                     if (second_pos == 'R' or second_pos == '0'):
@@ -493,8 +548,15 @@ class Board:
         "e armazena-os no em two_boats"
 
         for row in range(ROWS-1):
+
+            if (self.rows[row] <= 0):
+                continue
+            if (self.rows[row+1] <= 0):
+                continue
+
             if(not ((row > 0 and self.board[row - 1][column] != '0' and self.board[row - 1][column] != 'W') or 
                     (row+2 < 9 and self.board[row+2][column] != '0' and self.board[row+2][column] != 'W'))):
+                
                 if self.board[row][column] == 'T' or self.board[row][column] == '0':
                     second_pos = self.board[row+1][column]
                     if (second_pos == 'B' or second_pos == '0'):
@@ -507,6 +569,10 @@ class Board:
         "e armazena-o em one_boats"
         
         for column in range(COLUMNS-1):
+
+            if (self.rows[row] <= 0):
+                continue
+
             if self.board[row][column] == '0':
                 o_boat = ((row,column))
                 one_boats.append(self.place_one_boat(o_boat))
@@ -517,10 +583,10 @@ class Board:
 
         all_four_boats = list()
         for row in range(ROWS):
-            if (self.rows[row] > 0 and self.initial_row_value[row] >= 4):
+            if (self.rows[row] >= 4 and self.initial_row_value[row] >= 4):
                 self.four_boats_line(all_four_boats, row)
         for column in range(COLUMNS):
-            if (self.columns[column] > 0 and self.initial_column_value[column] >= 4):
+            if (self.columns[column] >= 4 and self.initial_column_value[column] >= 4):
                 self.four_boats_column(all_four_boats, column)
 
         return all_four_boats
@@ -530,10 +596,10 @@ class Board:
 
         all_three_boats = list()
         for row in range(ROWS):
-            if (self.rows[row] > 0 and self.initial_row_value[row] >= 3):
+            if (self.rows[row] >= 3 and self.initial_row_value[row] >= 3):
                 self.three_boats_line(all_three_boats, row)
         for column in range(COLUMNS):
-            if (self.columns[column] > 0 and self.initial_column_value[column] >= 3):
+            if (self.columns[column] >= 3 and self.initial_column_value[column] >= 3):
                 self.three_boats_column(all_three_boats, column)
 
         return all_three_boats
@@ -543,10 +609,10 @@ class Board:
 
         all_two_boats = list()
         for row in range(ROWS):
-            if (self.rows[row] > 0 and self.initial_row_value[row] >= 2):
+            if (self.rows[row] >= 2 and self.initial_row_value[row] >= 2):
                 self.two_boats_line(all_two_boats, row)
         for column in range(COLUMNS):
-            if (self.columns[column] > 0 and self.initial_column_value[column] >= 2):
+            if (self.columns[column] >= 2 and self.initial_column_value[column] >= 2):
                 self.two_boats_column(all_two_boats, column)
 
         return all_two_boats
@@ -575,8 +641,8 @@ class BimaruState:
     def look_for_actions(self) -> tuple(Action):
         """ Procura por ações a realizar no estado atual."""
 
-        print("\n----------------------------------------------")
-        print(self.board.remaining_two_boats)
+        if (self.board.hints<0):
+            return tuple()
         if (self.board.remaining_four_boats > 0):
             return self.board.look_for_four_boat()
         if (self.board.remaining_three_boats > 0):
@@ -630,22 +696,23 @@ class Bimaru(Problem):
         das presentes na lista obtida pela execução de
         self.actions(state)."""
         res = state.execute(action)
-        res.board.print_board()
+        #res.board.print_board()
         return res
 
     def goal_test(self, state: BimaruState):
         """Retorna True se e só se o estado passado como argumento é
         um estado objetivo. Deve verificar se todas as posições do tabuleiro
         estão preenchidas de acordo com as regras do problema."""
-        if(state.board.remaining_boats != 0):
-            return False
-        for i in range(10):
-            if(state.board.rows[i] != 0):
-                return False
-            if(state.board.columns[i] != 0):
-                return False
-            
-        return True
+        #if(state.board.remaining_boats != 0):
+           # return False
+        #for i in range(10):
+            #if(state.board.rows[i] != 0):
+                ##return False
+            #if(state.board.columns[i] != 0):
+               # return False
+        if (state.board.remaining_boats == 0 and state.board.hints == 0):
+                return True 
+        return False
 
     def h(self, node: Node):
         """Função heuristica utilizada para a procura A*."""
