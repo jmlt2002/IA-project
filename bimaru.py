@@ -63,6 +63,7 @@ class Board:
         self.remaining_two_boats = 3
         self.remaining_one_boats = 4
         self.hints = 0
+        self.all_hints = list()
 
     def new_duplicate_board(self):
         duplicate_board = Board()
@@ -77,6 +78,7 @@ class Board:
         duplicate_board.remaining_two_boats = self.remaining_two_boats
         duplicate_board.remaining_one_boats = self.remaining_one_boats
         duplicate_board.hints = self.hints
+        duplicate_board.all_hints = self.all_hints
         return duplicate_board
         
     
@@ -114,9 +116,6 @@ class Board:
             > from sys import stdin
             > line = stdin.readline().split()
         """
-
-        # to use in rows and columns with no boat
-        water_row = ['W','W','W','W','W','W','W','W','W','W']
 
         #read rows values
         rows_raw = input().split()
@@ -180,30 +179,14 @@ class Board:
 
     def print_board(self):
         """"Imprime o tabuleiro de jogo."""
-        print("board->\n")
+        
         for i in range(10):
             for j in range(10):
                 if(self.board[i][j] == 'W'):
-                    print('▒', end=' ')
-                elif(self.board[i][j] == 'M'):
-                    print('■', end=' ')
-                elif(self.board[i][j] == 'C'):
-                    print('●', end=' ')
-                elif(self.board[i][j] == 'B'):
-                    print('▼', end=' ')
-                elif(self.board[i][j] == 'T'):
-                    print('▲', end=' ')
-                elif(self.board[i][j] == 'L'):
-                    print('◀', end=' ')
-                elif(self.board[i][j] == 'R'):
-                    print('▶', end=' ')
+                    print('.', end=' ')
                 else:
-                    print('0', end=' ')
-            print('  ', end='')
-            print(self.rows[i])
-        print()
-        for i in range(10):
-            print(self.columns[i], end=' ')
+                    print(self.board[i][j], end=' ')
+            print()
         pass
 
     # FILLS WATER TILES ADJACENT TO SHIPS------------------------------
@@ -696,7 +679,6 @@ class Bimaru(Problem):
         das presentes na lista obtida pela execução de
         self.actions(state)."""
         res = state.execute(action)
-        res.board.print_board()
         return res
 
     def goal_test(self, state: BimaruState):
@@ -727,7 +709,6 @@ class Bimaru(Problem):
 def bimaru_read():
     board = Board()
     board.parse_instance(board)
-    board.print_board()
     return board
 
 if __name__ == "__main__":
@@ -738,39 +719,6 @@ if __name__ == "__main__":
     # Imprimir para o standard output no formato indicado.
     board = bimaru_read()
     bimaru_problem = Bimaru(board)
-    """actions = bimaru_problem.actions(bimaru_problem.initial)
-    print("actions->")
-    print(actions)
-    child = bimaru_problem.result(bimaru_problem.initial, actions[0])
-    print("child->")
-    child.board.print_board()
-    #--------------------------------------------------------------------
-    actions2 = bimaru_problem.actions(child)
-    print("actions->")
-    print(actions2)
-    child2 = bimaru_problem.result(child, actions2[0])
-    child2.board.print_board()
-    actions3 = bimaru_problem.actions(child2)
-    print("ACTIONS ->")
-    print(actions3)
-    child3 = bimaru_problem.result(child2, actions3[0])
-    child3.board.print_board()
-    #-------------------------------------------------------------------
-    actions4 = bimaru_problem.actions(child3)
-    print("ACTIONS ->")
-    print(actions4)
-    child4 = bimaru_problem.result(child3, actions4[0])
-    child4.board.print_board()
-    actions5 = bimaru_problem.actions(child4)
-    print("ACTIONS ->")
-    print(actions5)
-    child5 = bimaru_problem.result(child4, actions5[0])
-    child5.board.print_board()
-    actions6 = bimaru_problem.actions(child5)
-    print("ACTIONS ->")
-    print(actions6)
-    child6 = bimaru_problem.result(child5, actions6[0])
-    child6.board.print_board()"""
     result = depth_first_tree_search(bimaru_problem)
     if(result == None):
         print("NO RESULT")
