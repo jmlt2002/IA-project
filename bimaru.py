@@ -613,6 +613,41 @@ class Board:
                 self.one_boats(all_one_boats, row)
 
         return all_one_boats
+    
+    def is_invalid_board(self):
+        """Verifica se o tabuleiro é inválido."""
+        
+        for row in range(ROWS):
+            for column in range(COLUMNS):
+                if(self.board[row][column] != '0' and self.board[row][column] != 'w' and 
+                   self.board[row][column] != 'c'):
+                    if(self.board[row][column] == 'm'):
+                        if(column+1 <= 9 and self.board[row][column+1] == 'w' and
+                           row+1 <= 9 and self.board[row+1][column] == 'w'):
+                            return True
+                        if(column-1 >= 0 and self.board[row][column-1] == 'w' and
+                           row+1 >= 0 and self.board[row-1][column] == 'w'):
+                            return True
+                    elif(self.board[row][column] == 't'):
+                        if(row+1 <= 9 and self.board[row+1][column] == 'w'):
+                            return True
+                    elif(self.board[row][column] == 'b'):
+                        if(row-1 >= 0 and self.board[row-1][column] == 'w'):
+                            return True
+                    elif(self.board[row][column] == 'r'):
+                        if(column-1 >= 0 and self.board[row][column-1] == 'w'):
+                            return True
+                    elif(self.board[row][column] == 'l'):
+                        if(column+1 <= 9 and self.board[row][column+1] == 'w'):
+                            return True
+                    elif(self.board[row][column] == 'm'):
+                        if(column+1 <= 9 and self.board[row][column+1] == 'w' and
+                           row+1 <= 9 and self.board[row+1][column] == 'w'):
+                            return True
+                        if(column-1 >= 0 and self.board[row][column-1] == 'w' and
+                           row+1 >= 0 and self.board[row-1][column] == 'w'):
+                            return True
+        return False
 
 class BimaruState:
     state_id = 0
@@ -672,7 +707,10 @@ class Bimaru(Problem):
 
     def actions(self, state: BimaruState):
         """Retorna uma lista de ações que podem ser executadas a
-        partir do estado passado como argumento."""
+        partir do estado passado como argumento.etorna um tuplo de
+        ações vazias no caso de ser um tabuleiro inválido."""
+        if(state.board.is_invalid_board()):
+            return tuple()
         return state.look_for_actions()
 
     def result(self, state: BimaruState, action:Action):
