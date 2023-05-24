@@ -35,7 +35,7 @@ Action = (Placement)
 
 #acoes = [four_boat1, four_boat2]
 #acoes = [(4_cenas), (4cenas)]
-#acoes = [(('L',pos),('M', pos),('M', pos),('R', pos)) , (('L',pos),('M', pos),('M', pos),('R', pos))]
+#acoes = [(('l',pos),('m', pos),('m', pos),('r', pos)) , (('l',pos),('m', pos),('m', pos),('r', pos))]
          #---primeiro barco----------------------------  segundo_barco-------------------------------
 
 
@@ -133,7 +133,7 @@ class Board:
         for i in range(len(self.columns)):
             if(self.columns[i] == 0):
                 for j in range(len(self.rows)):
-                    self.board[j][i] = 'W'
+                    self.board[j][i] = 'w'
             else:
                 self.columns[i] = int(self.columns[i])
 
@@ -143,7 +143,8 @@ class Board:
 
         for i in range(hint_total):
             hint = input().split()
-            self.board[int(hint[1])][int(hint[2])] = hint[3]
+            self.board[int(hint[1])][int(hint[2])] = hint[3].lower()
+            self.all_hints.append((int(hint[1]), int(hint[2]), hint[3]))
 
             if(hint[3] == 'W'):
                 self.hints -= 1
@@ -170,192 +171,195 @@ class Board:
             if(self.rows[i] == 0):
                 for j in range(len(self.rows)):
                     if(not self.board[i][j].isalpha()):
-                        self.board[i][j] = 'W'
+                        self.board[i][j] = 'w'
             if(self.columns[i] == 0):
                 for j in range(len(self.rows)):
                     if(not self.board[j][i].isalpha()):
-                        self.board[j][i] = 'W'
+                        self.board[j][i] = 'w'
         pass
 
     def print_board(self):
         """"Imprime o tabuleiro de jogo."""
         
+        for hint in self.all_hints:
+            self.board[hint[0]][hint[1]] = hint[2]
+        
         for i in range(10):
             for j in range(10):
-                if(self.board[i][j] == 'W'):
-                    print('.', end=' ')
+                if(self.board[i][j] == 'w'):
+                    print('.', end='')
                 else:
-                    print(self.board[i][j], end=' ')
+                    print(self.board[i][j], end='')
             print()
         pass
 
     # FILLS WATER TILES ADJACENT TO SHIPS------------------------------
     def fill_water_around_circle(self, row: int, col: int):
         if(row + 1 < 10):
-            self.board[row+1][col] = 'W'
+            self.board[row+1][col] = 'w'
             if(col + 1 < 10):
-                self.board[row+1][col+1] = 'W'
-                self.board[row][col+1] = 'W'
+                self.board[row+1][col+1] = 'w'
+                self.board[row][col+1] = 'w'
             if(col - 1 >= 0):
-                self.board[row+1][col-1] = 'W'
-                self.board[row][col-1] = 'W'
+                self.board[row+1][col-1] = 'w'
+                self.board[row][col-1] = 'w'
         if(row - 1 >= 0):
-            self.board[row-1][col] = 'W'
+            self.board[row-1][col] = 'w'
             if(col + 1 < 10):
-                self.board[row-1][col+1] = 'W'
-                self.board[row][col+1] = 'W'
+                self.board[row-1][col+1] = 'w'
+                self.board[row][col+1] = 'w'
             if(col - 1 >= 0):
-                self.board[row-1][col-1] = 'W'
-                self.board[row][col-1] = 'W'
+                self.board[row-1][col-1] = 'w'
+                self.board[row][col-1] = 'w'
     
     def fill_water_around_middle(self, row: int, col: int):
         if(row + 1 < 10 and col + 1 < 10):
-            self.board[row+1][col+1] = 'W'
+            self.board[row+1][col+1] = 'w'
         if(row + 1 < 10 and col - 1 >= 0):
-            self.board[row+1][col-1] = 'W'
+            self.board[row+1][col-1] = 'w'
         if(row - 1 >= 0 and col + 1 < 10):
-            self.board[row-1][col+1] = 'W'
+            self.board[row-1][col+1] = 'w'
         if(row - 1 >= 0 and col - 1 >= 0):
-            self.board[row-1][col-1] = 'W'
+            self.board[row-1][col-1] = 'w'
 
     def fill_water_around_top(self, row: int, col: int):
         if(row + 1 < 10 and col + 1 < 10):
-                self.board[row+1][col+1] = 'W'
-                self.board[row][col+1] = 'W'
+                self.board[row+1][col+1] = 'w'
+                self.board[row][col+1] = 'w'
                 if(col - 1 >= 0):
-                    self.board[row+1][col-1] = 'W'
-                    self.board[row][col-1] = 'W'
+                    self.board[row+1][col-1] = 'w'
+                    self.board[row][col-1] = 'w'
         if(row - 1 >= 0):
-            self.board[row-1][col] = 'W'
+            self.board[row-1][col] = 'w'
             if(col + 1 < 10):
-                self.board[row-1][col+1] = 'W'
-                self.board[row][col+1] = 'W'
+                self.board[row-1][col+1] = 'w'
+                self.board[row][col+1] = 'w'
             if(col - 1 >= 0):
-                self.board[row-1][col-1] = 'W'
-                self.board[row][col-1] = 'W'
+                self.board[row-1][col-1] = 'w'
+                self.board[row][col-1] = 'w'
         pass
 
     def fill_water_around_bottom(self, row: int, col: int):
         if(row + 1 < 10):
-            self.board[row+1][col] = 'W'
+            self.board[row+1][col] = 'w'
             if(col + 1 < 10):
-                self.board[row+1][col+1] = 'W'
-                self.board[row][col+1] = 'W'
+                self.board[row+1][col+1] = 'w'
+                self.board[row][col+1] = 'w'
             if(col - 1 >= 0):
-                self.board[row+1][col-1] = 'W'
-                self.board[row][col-1] = 'W'
+                self.board[row+1][col-1] = 'w'
+                self.board[row][col-1] = 'w'
         if(row - 1 >= 0 and col + 1 < 10):
-            self.board[row-1][col+1] = 'W'
-            self.board[row][col+1] = 'W'
+            self.board[row-1][col+1] = 'w'
+            self.board[row][col+1] = 'w'
         if(row - 1 >= 0 and col - 1 >= 0):
-            self.board[row-1][col-1] = 'W'
-            self.board[row][col-1] = 'W'
+            self.board[row-1][col-1] = 'w'
+            self.board[row][col-1] = 'w'
         pass
     
     def fill_water_around_right(self, row: int, col: int):
         if(col + 1 < 10):
-            self.board[row][col+1] = 'W'
+            self.board[row][col+1] = 'w'
             if(row + 1 < 10):
-                self.board[row+1][col+1] = 'W'
-                self.board[row+1][col] = 'W'
+                self.board[row+1][col+1] = 'w'
+                self.board[row+1][col] = 'w'
             if(row - 1 >= 0):
-                self.board[row-1][col+1] = 'W'
-                self.board[row-1][col] = 'W'
+                self.board[row-1][col+1] = 'w'
+                self.board[row-1][col] = 'w'
         if(col - 1 >= 0 and row + 1 < 10):
-            self.board[row+1][col-1] = 'W'
-            self.board[row+1][col] = 'W'
+            self.board[row+1][col-1] = 'w'
+            self.board[row+1][col] = 'w'
         if(col - 1 >= 0 and row - 1 >= 0):
-            self.board[row-1][col-1] = 'W'
-            self.board[row-1][col] = 'W'
+            self.board[row-1][col-1] = 'w'
+            self.board[row-1][col] = 'w'
         pass
 
     def fill_water_around_left(self, row: int, col: int):
         if(col - 1 >= 0):
-            self.board[row][col-1] = 'W'
+            self.board[row][col-1] = 'w'
             if(row + 1 < 10):
-                self.board[row+1][col-1] = 'W'
-                self.board[row+1][col] = 'W'
+                self.board[row+1][col-1] = 'w'
+                self.board[row+1][col] = 'w'
             if(row - 1 >= 0):
-                self.board[row-1][col-1] = 'W'
-                self.board[row-1][col] = 'W'
+                self.board[row-1][col-1] = 'w'
+                self.board[row-1][col] = 'w'
         if(col + 1 < 10 and row + 1 < 10):
-            self.board[row+1][col+1] = 'W'
-            self.board[row+1][col] = 'W'
+            self.board[row+1][col+1] = 'w'
+            self.board[row+1][col] = 'w'
         if(col + 1 < 10 and row - 1 >= 0):
-            self.board[row-1][col+1] = 'W'
-            self.board[row-1][col] = 'W'
+            self.board[row-1][col+1] = 'w'
+            self.board[row-1][col] = 'w'
         pass
     #---------------------------------------------------------------------
 
     def place_four_boat(self, four_boat:Four_boat) -> Action:
-        "Recebe um barco de quatro e transforma-o numa ação"
+        """Recebe um barco de quatro e transforma-o numa ação."""
 
         if (four_boat[4] == VERTICAL):
-            placement1 = ('T', four_boat[0])
-            placement2 = ('M', four_boat[1])
-            placement3 = ('M', four_boat[2])
-            placement4 = ('B', four_boat[3])
+            placement1 = ('t', four_boat[0])
+            placement2 = ('m', four_boat[1])
+            placement3 = ('m', four_boat[2])
+            placement4 = ('b', four_boat[3])
         
         else:
-            placement1 = ('L', four_boat[0])
-            placement2 = ('M', four_boat[1])
-            placement3 = ('M', four_boat[2])
-            placement4 = ('R', four_boat[3])
+            placement1 = ('l', four_boat[0])
+            placement2 = ('m', four_boat[1])
+            placement3 = ('m', four_boat[2])
+            placement4 = ('r', four_boat[3])
 
         return (placement1,placement2,placement3, placement4)
     
     def place_three_boat(self, three_boat: Three_boat) -> Action:
-        "Recebe um barco de tres e transforma-o numa acao"
+        """Recebe um barco de três e transforma-o numa ação."""
  
         if (three_boat[3] == VERTICAL):
-            placement1 = ('T', three_boat[0])
-            placement2 = ('M', three_boat[1])
-            placement3 = ('B', three_boat[2])
+            placement1 = ('t', three_boat[0])
+            placement2 = ('m', three_boat[1])
+            placement3 = ('b', three_boat[2])
         
         else:
-            placement1 = ('L', three_boat[0])
-            placement2 = ('M', three_boat[1])
-            placement3 = ('R', three_boat[2])
+            placement1 = ('l', three_boat[0])
+            placement2 = ('m', three_boat[1])
+            placement3 = ('r', three_boat[2])
 
         return (placement1,placement2,placement3)
     
     def place_two_boat(self, two_boat: Two_boat) -> Action:
-        "Recebe um barco de dois e transforma-o numa acao"
+        """Recebe um barco de dois e transforma-o numa ação."""
 
         if (two_boat[2] == VERTICAL):
-            placement1 = ('T', two_boat[0])
-            placement2 = ('B', two_boat[1])
+            placement1 = ('t', two_boat[0])
+            placement2 = ('b', two_boat[1])
         
         else:
-            placement1 = ('L', two_boat[0])
-            placement2 = ('R', two_boat[1])
+            placement1 = ('l', two_boat[0])
+            placement2 = ('r', two_boat[1])
 
         return (placement1, placement2)
     
     def place_one_boat(self, one_boat: One_boat) -> Action:
-        "Recebe um barco de um e transforma-o numa açao"
+        """Recebe um barco de um e transforma-o numa ação."""
 
-        placement1 = ("C", one_boat)
+        placement1 = ('c', one_boat)
 
         return (placement1,)
     
     def fill_water_row(self , row):
-        """ Preenche com agua a respetiva linha do board"""
+        """Preenche com agua a respetiva linha do tabuleiro."""
 
         for column in range(COLUMNS):
             if (self.board[row][column] == '0'):
-                self.board[row][column] = 'W'
+                self.board[row][column] = 'w'
     
     def fill_water_column(self , column):
         """ Preenche com agua a respetiva coluna do board"""
 
         for row in range(ROWS):
             if (self.board[row][column] == '0'):
-                self.board[row][column] = 'W'
+                self.board[row][column] = 'w'
 
     def place(self, placement : Placement):
-        """Recebe um placement com um simbolo e uma posicao -> Placement(simbolo,posicao)
-        e coloca esse simbolo na respetiva posicao do board """
+        """Recebe um placement com um símbolo e uma posição -> Placement(simbolo,posição)
+        e coloca esse simbolo na respetiva posição do tabuleiro."""
 
         x = placement[1][0]
         y = placement[1][1]
@@ -377,23 +381,23 @@ class Board:
             self.fill_water_column(y)
 
         #preencher com agua a volta dos simbolos 
-        if (simbol == 'T'):
+        if (simbol == 't'):
             self.fill_water_around_top(x,y)     
-        elif (simbol == 'B'):                 
+        elif (simbol == 'b'):                 
             self.fill_water_around_bottom(x,y)         
-        elif (simbol == 'M'):
+        elif (simbol == 'm'):
             self.fill_water_around_middle(x,y)
-        elif (simbol == 'R'):
+        elif (simbol == 'r'):
             self.fill_water_around_right(x,y)
-        elif (simbol == 'L'):
+        elif (simbol == 'l'):
             self.fill_water_around_left(x ,y)
         else:
             self.fill_water_around_circle(x,y)
         pass
 
     def four_boats_line(self, four_boats:list , row: int):
-        "Procura numa linha(row) quatro posicoes seguidas para colocar um barco"
-        "e armazena-os no em four_boats"
+        """Procura numa linha(row) quatro posições seguidas para colocar um barco
+        e armazena-os no em four_boats."""
 
 
         for column in range(COLUMNS-3):
@@ -407,24 +411,24 @@ class Board:
             if (self.columns[column+3] <= 0):
                 continue
 
-            if(not ((column > 0 and self.board[row][column-1] != '0' and self.board[row][column-1] != 'W') or 
-                    (column+3 < 9 and self.board[row][column+4] != '0' and self.board[row][column+4] != 'W'))):
+            if(not ((column > 0 and self.board[row][column-1] != '0' and self.board[row][column-1] != 'w') or 
+                    (column+3 < 9 and self.board[row][column+4] != '0' and self.board[row][column+4] != 'w'))):
                             
-                if self.board[row][column] == 'L' or self.board[row][column] == '0':
+                if self.board[row][column] == 'l' or self.board[row][column] == '0':
                     second_pos = self.board[row][column+1]
                     third_pos = self.board[row][column+2]
                     fourth_pos = self.board[row][column+3]
-                    if ((second_pos == 'M' or second_pos == '0') and
-                        (third_pos == 'M' or third_pos == '0') and
-                        (fourth_pos == 'R' or fourth_pos == '0')):
+                    if ((second_pos == 'm' or second_pos == '0') and
+                        (third_pos == 'm' or third_pos == '0') and
+                        (fourth_pos == 'r' or fourth_pos == '0')):
                             f_boat = ((row,column),(row,column+1),
                                                 (row,column+2), (row,column+3), HORIZONTAL)
                             four_boats.append(self.place_four_boat(f_boat))
         pass
 
     def four_boats_column(self, four_boats : list , column):
-        "Procura numa coluna(column) quatro posições seguidas para colocar um barco"
-        "e armazena-os no em four_boats"
+        """Procura numa coluna(column) quatro posições seguidas para colocar um barco
+        e armazena-os no em four_boats."""
         
         for row in range(ROWS-3):
 
@@ -437,24 +441,24 @@ class Board:
             if (self.rows[row+3] <= 0):
                 continue
 
-            if(not ((row > 0 and self.board[row-1][column] != '0' and self.board[row-1][column] != 'W') or 
-                    (row+3 < 9 and self.board[row+4][column] != '0' and self.board[row+4][column] != 'W'))):
+            if(not ((row > 0 and self.board[row-1][column] != '0' and self.board[row-1][column] != 'w') or 
+                    (row+3 < 9 and self.board[row+4][column] != '0' and self.board[row+4][column] != 'w'))):
                 
-                if self.board[row][column] == 'T' or self.board[row][column] == '0':
+                if self.board[row][column] == 't' or self.board[row][column] == '0':
                     second_pos = self.board[row+1][column]
                     third_pos = self.board[row+2][column]
                     fourth_pos = self.board[row+3][column]
-                    if ((second_pos == 'M' or second_pos == '0') and
-                        (third_pos == 'M' or third_pos == '0') and
-                        (fourth_pos == 'B' or fourth_pos == '0')):
+                    if ((second_pos == 'm' or second_pos == '0') and
+                        (third_pos == 'm' or third_pos == '0') and
+                        (fourth_pos == 'b' or fourth_pos == '0')):
                             f_boat = ((row,column),(row+1,column),
                                                 (row+2,column), (row+3,column), VERTICAL)
                             four_boats.append(self.place_four_boat(f_boat))
         pass
 
     def three_boats_line(self, three_boats:list , row):
-        "Procura numa linha(row) tres posições seguidas para colocar um barco"
-        "e armazena-os no em three_boats"
+        """Procura numa linha(row) três posições seguidas para colocar um barco
+        e armazena-os no em three_boats."""
 
         for column in range(COLUMNS-2):
 
@@ -465,22 +469,22 @@ class Board:
             if (self.columns[column+2] <= 0):
                 continue
 
-            if(not ((column > 0 and self.board[row][column-1] != '0' and self.board[row][column-1] != 'W') or 
-                    (column+2 < 9 and self.board[row][column+3] != '0' and self.board[row][column+3] != 'W'))):
+            if(not ((column > 0 and self.board[row][column-1] != '0' and self.board[row][column-1] != 'w') or 
+                    (column+2 < 9 and self.board[row][column+3] != '0' and self.board[row][column+3] != 'w'))):
                 
-                if self.board[row][column] == 'L' or self.board[row][column] == '0':
+                if self.board[row][column] == 'l' or self.board[row][column] == '0':
                     second_pos = self.board[row][column+1]
                     third_pos = self.board[row][column+2]
-                    if ((second_pos == 'M' or second_pos == '0') and
-                        (third_pos == 'R' or third_pos == '0')):
+                    if ((second_pos == 'm' or second_pos == '0') and
+                        (third_pos == 'r' or third_pos == '0')):
                             t_boat = ((row,column),(row,column+1),
                                                 (row,column+2), HORIZONTAL)
                             three_boats.append(self.place_three_boat(t_boat))
         pass
 
     def three_boats_column(self, three_boats:list, column):
-        "Procura numa coluna(column) tres posições seguidas para colocar um barco"
-        "e armazena-os no em three_boats"
+        """Procura numa coluna(column) três posições seguidas para colocar um barco
+        e armazena-os no em three_boats."""
 
         for row in range(ROWS-2):
 
@@ -492,22 +496,22 @@ class Board:
                 continue
 
 
-            if(not ((row > 0 and self.board[row - 1][column] != '0' and self.board[row - 1][column] != 'W') or 
-                    (row+2 < 9 and self.board[row+3][column] != '0' and self.board[row+3][column] != 'W'))):
+            if(not ((row > 0 and self.board[row - 1][column] != '0' and self.board[row - 1][column] != 'w') or 
+                    (row+2 < 9 and self.board[row+3][column] != '0' and self.board[row+3][column] != 'w'))):
                 
-                if self.board[row][column] == 'T' or self.board[row][column] == '0':
+                if self.board[row][column] == 't' or self.board[row][column] == '0':
                     second_pos = self.board[row+1][column]
                     third_pos = self.board[row+2][column]
-                    if ((second_pos == 'M' or second_pos == '0') and
-                        (third_pos == 'B' or third_pos == '0')):
+                    if ((second_pos == 'm' or second_pos == '0') and
+                        (third_pos == 'b' or third_pos == '0')):
                             t_boat = ((row,column),(row+1,column),
                                                 (row+2,column), VERTICAL)
                             three_boats.append(self.place_three_boat(t_boat))
         pass
 
     def two_boats_line(self, two_boats:list, row):
-        "Procura numa linha(row) duas posições seguidas para colocar um barco"
-        "e armazena-os no em two_boats"
+        """Procura numa linha(row) duas posições seguidas para colocar um barco
+        e armazena-os no em two_boats."""
 
         for column in range(COLUMNS-1):
 
@@ -516,19 +520,19 @@ class Board:
             if (self.columns[column+1] <= 0):
                 continue
 
-            if(not ((column > 0 and self.board[row][column-1] != '0' and self.board[row][column-1] != 'W') or 
-                    (column+2 < 9 and self.board[row][column+2] != '0' and self.board[row][column+2] != 'W'))):
+            if(not ((column > 0 and self.board[row][column-1] != '0' and self.board[row][column-1] != 'w') or 
+                    (column+2 < 9 and self.board[row][column+2] != '0' and self.board[row][column+2] != 'w'))):
                 
-                if self.board[row][column] == 'L' or self.board[row][column] == '0':
+                if self.board[row][column] == 'l' or self.board[row][column] == '0':
                     second_pos = self.board[row][column+1]
-                    if (second_pos == 'R' or second_pos == '0'):
+                    if (second_pos == 'r' or second_pos == '0'):
                         t_boat = ((row,column),(row,column+1), HORIZONTAL)
                         two_boats.append(self.place_two_boat(t_boat))
         pass
 
     def two_boats_column(self, two_boats:list, column):
-        "Procura numa coluna(column) duas posições seguidas para colocar um barco"
-        "e armazena-os no em two_boats"
+        """Procura numa coluna(column) duas posições seguidas para colocar um barco
+        e armazena-os no em two_boats."""
 
         for row in range(ROWS-1):
 
@@ -537,19 +541,19 @@ class Board:
             if (self.rows[row+1] <= 0):
                 continue
 
-            if(not ((row > 0 and self.board[row - 1][column] != '0' and self.board[row - 1][column] != 'W') or 
-                    (row+2 < 9 and self.board[row+2][column] != '0' and self.board[row+2][column] != 'W'))):
+            if(not ((row > 0 and self.board[row - 1][column] != '0' and self.board[row - 1][column] != 'w') or 
+                    (row+2 < 9 and self.board[row+2][column] != '0' and self.board[row+2][column] != 'w'))):
                 
-                if self.board[row][column] == 'T' or self.board[row][column] == '0':
+                if self.board[row][column] == 't' or self.board[row][column] == '0':
                     second_pos = self.board[row+1][column]
-                    if (second_pos == 'B' or second_pos == '0'):
+                    if (second_pos == 'b' or second_pos == '0'):
                             t_boat = ((row,column),(row+1,column), VERTICAL)
                             two_boats.append(self.place_two_boat(t_boat))
         pass
 
     def one_boats(self, one_boats:list, row):
-        "Procura numa linha (row) uma posicao para colocar um barco"
-        "e armazena-o em one_boats"
+        """Procura numa linha (row) uma posição para colocar um barco
+        e armazena-o em one_boats."""
         
         for column in range(COLUMNS):
 
@@ -562,7 +566,7 @@ class Board:
         pass
 
     def look_for_four_boat(self) -> list:
-        """Procura no tabuleiro espaços onde colocar barcos de 4"""
+        """Procura no tabuleiro espaços onde colocar barcos de 4."""
 
         all_four_boats = list()
         for row in range(ROWS):
@@ -575,7 +579,7 @@ class Board:
         return all_four_boats
     
     def look_for_three_boat(self) -> list:
-        """Procura no tabuleiro espacos onde colocar barcos de 3"""
+        """Procura no tabuleiro espaços onde colocar barcos de 3."""
 
         all_three_boats = list()
         for row in range(ROWS):
@@ -588,7 +592,7 @@ class Board:
         return all_three_boats
     
     def look_for_two_boat(self) -> list:
-        """Procura no tabuleiro espacos onde colocar barcos de 2"""
+        """Procura no tabuleiro espaços onde colocar barcos de 2."""
 
         all_two_boats = list()
         for row in range(ROWS):
@@ -601,7 +605,7 @@ class Board:
         return all_two_boats
 
     def look_for_one_boat(self) -> list:
-        "Procura no tabuleiro espacos onde colocar barcos de 1"
+        "Procura no tabuleiro espaços onde colocar barcos de 1."
 
         all_one_boats = list()
         for row in range(ROWS):
@@ -659,8 +663,6 @@ class BimaruState:
         return child
     
 
-
-
 class Bimaru(Problem):
 
     def __init__(self, board: Board):
@@ -685,13 +687,6 @@ class Bimaru(Problem):
         """Retorna True se e só se o estado passado como argumento é
         um estado objetivo. Deve verificar se todas as posições do tabuleiro
         estão preenchidas de acordo com as regras do problema."""
-        #if(state.board.remaining_boats != 0):
-           # return False
-        #for i in range(10):
-            #if(state.board.rows[i] != 0):
-                ##return False
-            #if(state.board.columns[i] != 0):
-               # return False
         if (state.board.remaining_boats == 0 and state.board.hints == 0):
                 return True
         return False
@@ -701,22 +696,12 @@ class Bimaru(Problem):
         # TODO:
         pass
 
-    # TODO: outros metodos da classe
-
-
-
-
 def bimaru_read():
     board = Board()
     board.parse_instance(board)
     return board
 
 if __name__ == "__main__":
-    # TODO:
-    # Ler o ficheiro do standard input,
-    # Usar uma técnica de procura para resolver a instância,
-    # Retirar a solução a partir do nó resultante,
-    # Imprimir para o standard output no formato indicado.
     board = bimaru_read()
     bimaru_problem = Bimaru(board)
     result = depth_first_tree_search(bimaru_problem)
