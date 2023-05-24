@@ -568,7 +568,7 @@ class Board:
         "Procura numa linha (row) uma posicao para colocar um barco"
         "e armazena-o em one_boats"
         
-        for column in range(COLUMNS-1):
+        for column in range(COLUMNS):
 
             if (self.rows[row] <= 0):
                 continue
@@ -622,7 +622,7 @@ class Board:
 
         all_one_boats = list()
         for row in range(ROWS):
-            if self.rows[row] >= 1 and self.initial_row_value[row] >= 1:
+            if (self.rows[row] >= 1 and self.initial_row_value[row] >= 1):
                 self.one_boats(all_one_boats, row)
 
         return all_one_boats
@@ -641,7 +641,7 @@ class BimaruState:
     def look_for_actions(self) -> tuple(Action):
         """ Procura por ações a realizar no estado atual."""
 
-        if (self.board.hints<0):
+        if (self.board.hints < 0):
             return tuple()
         if (self.board.remaining_four_boats > 0):
             return self.board.look_for_four_boat()
@@ -696,7 +696,7 @@ class Bimaru(Problem):
         das presentes na lista obtida pela execução de
         self.actions(state)."""
         res = state.execute(action)
-        #res.board.print_board()
+        res.board.print_board()
         return res
 
     def goal_test(self, state: BimaruState):
@@ -711,7 +711,7 @@ class Bimaru(Problem):
             #if(state.board.columns[i] != 0):
                # return False
         if (state.board.remaining_boats == 0 and state.board.hints == 0):
-                return True 
+                return True
         return False
 
     def h(self, node: Node):
