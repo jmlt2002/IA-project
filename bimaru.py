@@ -55,8 +55,6 @@ class Board:
         self.board = np.full((10, 10), '0')
         self.rows= [0]*ROWS
         self.columns = [0]*COLUMNS
-        self.initial_row_value = [0]*ROWS   #listas para guardar os valores iniciais das col e lin
-        self.initial_column_value = [0]*COLUMNS  #para passar logo a frente na procura de barcos
         self.remaining_boats = 10
         self.remaining_four_boats = 1
         self.remaining_three_boats = 2
@@ -70,8 +68,6 @@ class Board:
         duplicate_board.board = np.copy(self.board)
         duplicate_board.rows= np.copy(self.rows)
         duplicate_board.columns = np.copy(self.columns)
-        duplicate_board.initial_row_value = np.copy(self.initial_row_value)   #listas para guardar os valores iniciais das col e lin
-        duplicate_board.initial_column_value = np.copy(self.initial_column_value)  #para passar logo a frente na procura de barcos
         duplicate_board.remaining_boats = self.remaining_boats
         duplicate_board.remaining_four_boats = self.remaining_four_boats
         duplicate_board.remaining_three_boats = self.remaining_three_boats
@@ -120,19 +116,21 @@ class Board:
         #read rows values
         rows_raw = input().split()
         self.rows = rows_raw[1:]
-        self.initial_row_value = np.array(self.rows, dtype=int)
         self.rows = np.array(self.rows, dtype=int)
-        for i in range(len(self.rows)):
-            self.rows[i] = int(self.rows[i])
+        for i in range(ROWS):
+            if (self.rows[i] == 0):
+                for j in range(COLUMNS):
+                    self.board[i][j] = 'w'
+            else:
+                self.rows[i] = int(self.rows[i])
 
         #read columns values
         columns_raw = input().split()
         self.columns = columns_raw[1:]
-        self.initial_column_value = np.array(self.columns, dtype=int)
         self.columns = np.array(self.columns, dtype=int)
-        for i in range(len(self.columns)):
+        for i in range(COLUMNS):
             if(self.columns[i] == 0):
-                for j in range(len(self.rows)):
+                for j in range(ROWS):
                     self.board[j][i] = 'w'
             else:
                 self.columns[i] = int(self.columns[i])
@@ -143,37 +141,40 @@ class Board:
 
         for i in range(hint_total):
             hint = input().split()
-            self.board[int(hint[1])][int(hint[2])] = hint[3].lower()
-            self.all_hints.append((int(hint[1]), int(hint[2]), hint[3]))
+            simbol = hint[3]
+            x = int(hint[1])
+            y = int(hint[2])
+            self.board[x][y] = simbol.lower()
+            self.all_hints.append((x, y, simbol))
 
-            if(hint[3] == 'W'):
+            if(simbol == 'W'):
                 self.hints -= 1
 
-            elif(hint[3] == 'M'):
-                self.fill_water_around_middle(int(hint[1]), int(hint[2]))
-            elif(hint[3] == 'C'):
-                self.rows[int(hint[1])] -= 1
-                self.columns[int(hint[2])] -= 1
+            elif(simbol == 'M'):
+                self.fill_water_around_middle(x, y)
+            elif(simbol == 'C'):
+                self.rows[x] -= 1
+                self.columns[y] -= 1
                 self.remaining_boats -= 1
                 self.remaining_one_boats -= 1
                 self.hints -= 1
-                self.fill_water_around_circle(int(hint[1]), int(hint[2]))
-            elif(hint[3] == 'B'):
-                self.fill_water_around_bottom(int(hint[1]), int(hint[2]))
-            elif(hint[3] == 'T'):
-                self.fill_water_around_top(int(hint[1]), int(hint[2]))
-            elif(hint[3] == 'L'):
-                self.fill_water_around_left(int(hint[1]), int(hint[2]))
-            elif(hint[3] == 'R'):
-                self.fill_water_around_right(int(hint[1]), int(hint[2]))
+                self.fill_water_around_circle(x, y)
+            elif(simbol == 'B'):
+                self.fill_water_around_bottom(x, y)
+            elif(simbol == 'T'):
+                self.fill_water_around_top(x, y)
+            elif(simbol == 'L'):
+                self.fill_water_around_left(x, y)
+            elif(simbol == 'R'):
+                self.fill_water_around_right(x, y)
 
         for i in range(10):
             if(self.rows[i] == 0):
-                for j in range(len(self.rows)):
+                for j in range(ROWS):
                     if(not self.board[i][j].isalpha()):
                         self.board[i][j] = 'w'
             if(self.columns[i] == 0):
-                for j in range(len(self.rows)):
+                for j in range(COLUMNS):
                     if(not self.board[j][i].isalpha()):
                         self.board[j][i] = 'w'
         pass
@@ -570,10 +571,10 @@ class Board:
 
         all_four_boats = list()
         for row in range(ROWS):
-            if (self.rows[row] >= 4 and self.initial_row_value[row] >= 4):
+            if (self.rows[row] >= 4):
                 self.four_boats_line(all_four_boats, row)
         for column in range(COLUMNS):
-            if (self.columns[column] >= 4 and self.initial_column_value[column] >= 4):
+            if (self.columns[column] >= 4):
                 self.four_boats_column(all_four_boats, column)
 
         return all_four_boats
@@ -583,10 +584,10 @@ class Board:
 
         all_three_boats = list()
         for row in range(ROWS):
-            if (self.rows[row] >= 3 and self.initial_row_value[row] >= 3):
+            if (self.rows[row] >= 3):
                 self.three_boats_line(all_three_boats, row)
         for column in range(COLUMNS):
-            if (self.columns[column] >= 3 and self.initial_column_value[column] >= 3):
+            if (self.columns[column] >= 3):
                 self.three_boats_column(all_three_boats, column)
 
         return all_three_boats
@@ -596,10 +597,10 @@ class Board:
 
         all_two_boats = list()
         for row in range(ROWS):
-            if (self.rows[row] >= 2 and self.initial_row_value[row] >= 2):
+            if (self.rows[row] >= 2):
                 self.two_boats_line(all_two_boats, row)
         for column in range(COLUMNS):
-            if (self.columns[column] >= 2 and self.initial_column_value[column] >= 2):
+            if (self.columns[column] >= 2):
                 self.two_boats_column(all_two_boats, column)
 
         return all_two_boats
@@ -609,7 +610,7 @@ class Board:
 
         all_one_boats = list()
         for row in range(ROWS):
-            if (self.rows[row] >= 1 and self.initial_row_value[row] >= 1):
+            if (self.rows[row] >= 1):
                 self.one_boats(all_one_boats, row)
 
         return all_one_boats
@@ -648,6 +649,8 @@ class Board:
                            row+1 >= 0 and self.board[row-1][column] == 'w'):
                             return True
         return False
+    
+
 
 class BimaruState:
     state_id = 0
@@ -696,7 +699,9 @@ class BimaruState:
             child.board.place(placement)
         
         return child
-    
+
+
+
 
 class Bimaru(Problem):
 
@@ -733,6 +738,8 @@ class Bimaru(Problem):
         """Função heuristica utilizada para a procura A*."""
         # TODO:
         pass
+
+
 
 def bimaru_read():
     board = Board()
