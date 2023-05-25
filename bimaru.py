@@ -7,6 +7,7 @@
 # 102663 Pedro Ribeiro
 
 import sys
+from sys import stdin
 import numpy as np
 from search import (
     Problem,
@@ -28,16 +29,16 @@ class Board:
     """Representação interna de um tabuleiro de Bimaru."""
 
     def __init__(self):
-        self.board = np.full((10, 10), '0')
-        self.rows= [0]*ROWS
-        self.columns = [0]*COLUMNS
+        self.board = None
+        self.rows= None
+        self.columns = None
         self.remaining_boats = 10
         self.remaining_four_boats = 1
         self.remaining_three_boats = 2
         self.remaining_two_boats = 3
         self.remaining_one_boats = 4
         self.hints = 0
-        self.all_hints = list()
+        self.all_hints = None
 
     def new_duplicate_board(self):
         duplicate_board = Board()
@@ -105,33 +106,31 @@ class Board:
             > line = stdin.readline().split()
         """
 
+        self.board = np.full((10, 10), '0')
+        self.rows= [0]*ROWS
+        self.columns = [0]*COLUMNS
+        self.all_hints = []
+
         #read rows values
-        rows_raw = input().split()
-        self.rows = rows_raw[1:]
-        self.rows = np.array(self.rows, dtype=int)
+        rows_raw = stdin.readline().split()
+        self.rows = np.array(rows_raw[1:], dtype=int)
         for i in range(ROWS):
             if (self.rows[i] == 0):
                 for j in range(COLUMNS):
                     self.board[i][j] = 'w'
-            else:
-                self.rows[i] = int(self.rows[i])
 
         #read columns values
-        columns_raw = input().split()
-        self.columns = columns_raw[1:]
-        self.columns = np.array(self.columns, dtype=int)
+        columns_raw = stdin.readline().split()
+        self.columns = np.array(columns_raw[1:], dtype=int)
         for i in range(COLUMNS):
             if(self.columns[i] == 0):
                 for j in range(ROWS):
                     self.board[j][i] = 'w'
-            else:
-                self.columns[i] = int(self.columns[i])
 
         #read hints
         hint_total = int(input())
         self.hints = hint_total
         
-
         for i in range(hint_total):
             hint = input().split()
             simbol = hint[3]
@@ -154,11 +153,11 @@ class Board:
                 self.fill_water_around_circle(x, y)
                 if(self.columns[y] == 0):
                     for j in range(ROWS):
-                        if(not self.board[j][y].isalpha()):
+                        if(self.board[j][y] == '0'):
                             self.board[j][y] = 'w'
                 if(self.rows[x] == 0):
                     for j in range(COLUMNS):
-                        if(not self.board[x][j].isalpha()):
+                        if(self.board[x][j] == '0'):
                             self.board[x][j] = 'w'
 
             elif(simbol == 'B'):
@@ -375,21 +374,25 @@ class Board:
             self.fill_water_around_circle(x,y)
         pass
 
-    def four_boats_line(self, four_boats:list , row: int):
+    def four_boats_line(self, four_boats, row: int):
         """Procura numa linha(row) quatro posições seguidas para colocar um barco
         e armazena-os no em four_boats."""
 
 
         for column in range(COLUMNS-3):
 
-            if (self.columns[column] <= 0):
-                continue
-            if (self.columns[column+1] <= 0):
+            if (self.columns[column+3] <= 0):
+                column += 3
                 continue
             if (self.columns[column+2] <= 0):
+                column += 2
                 continue
-            if (self.columns[column+3] <= 0):
+            if (self.columns[column+1] <= 0):
+                column += 1
                 continue
+            if (self.columns[column] <= 0):
+                continue
+            
 
             if(not ((column > 0 and self.board[row][column-1] != '0' and self.board[row][column-1] != 'w') or 
                     (column+3 < 9 and self.board[row][column+4] != '0' and self.board[row][column+4] != 'w'))):
@@ -406,20 +409,24 @@ class Board:
                             four_boats.append(self.place_four_boat(f_boat))
         pass
 
-    def four_boats_column(self, four_boats : list , column):
+    def four_boats_column(self, four_boats, column):
         """Procura numa coluna(column) quatro posições seguidas para colocar um barco
         e armazena-os no em four_boats."""
         
         for row in range(ROWS-3):
 
-            if (self.rows[row] <= 0):
-                continue
-            if (self.rows[row+1] <= 0):
+            if (self.rows[row+3] <= 0):
+                row += 3
                 continue
             if (self.rows[row+2] <= 0):
+                row += 2
                 continue
-            if (self.rows[row+3] <= 0):
+            if (self.rows[row+1] <= 0):
+                row += 1
                 continue
+            if (self.rows[row] <= 0):
+                continue
+            
 
             if(not ((row > 0 and self.board[row-1][column] != '0' and self.board[row-1][column] != 'w') or 
                     (row+3 < 9 and self.board[row+4][column] != '0' and self.board[row+4][column] != 'w'))):
@@ -436,17 +443,19 @@ class Board:
                             four_boats.append(self.place_four_boat(f_boat))
         pass
 
-    def three_boats_line(self, three_boats:list , row):
+    def three_boats_line(self, three_boats , row):
         """Procura numa linha(row) três posições seguidas para colocar um barco
         e armazena-os no em three_boats."""
 
         for column in range(COLUMNS-2):
 
-            if (self.columns[column] <= 0):
+            if (self.columns[column+2] <= 0):
+                column += 2
                 continue
             if (self.columns[column+1] <= 0):
+                column += 1
                 continue
-            if (self.columns[column+2] <= 0):
+            if (self.columns[column] <= 0):
                 continue
 
             if(not ((column > 0 and self.board[row][column-1] != '0' and self.board[row][column-1] != 'w') or 
@@ -462,19 +471,20 @@ class Board:
                             three_boats.append(self.place_three_boat(t_boat))
         pass
 
-    def three_boats_column(self, three_boats:list, column):
+    def three_boats_column(self, three_boats, column):
         """Procura numa coluna(column) três posições seguidas para colocar um barco
         e armazena-os no em three_boats."""
 
         for row in range(ROWS-2):
 
-            if (self.rows[row] <= 0):
+            if (self.rows[row+2] <= 0):
+                row += 2
                 continue
             if (self.rows[row+1] <= 0):
+                row += 1
                 continue
-            if (self.rows[row+2] <= 0):
+            if (self.rows[row] <= 0):
                 continue
-
 
             if(not ((row > 0 and self.board[row - 1][column] != '0' and self.board[row - 1][column] != 'w') or 
                     (row+2 < 9 and self.board[row+3][column] != '0' and self.board[row+3][column] != 'w'))):
@@ -489,15 +499,16 @@ class Board:
                             three_boats.append(self.place_three_boat(t_boat))
         pass
 
-    def two_boats_line(self, two_boats:list, row):
+    def two_boats_line(self, two_boats, row):
         """Procura numa linha(row) duas posições seguidas para colocar um barco
         e armazena-os no em two_boats."""
 
         for column in range(COLUMNS-1):
 
-            if (self.columns[column] <= 0):
-                continue
             if (self.columns[column+1] <= 0):
+                column += 1
+                continue
+            if (self.columns[column] <= 0):
                 continue
 
             if(not ((column > 0 and self.board[row][column-1] != '0' and self.board[row][column-1] != 'w') or 
@@ -510,15 +521,16 @@ class Board:
                         two_boats.append(self.place_two_boat(t_boat))
         pass
 
-    def two_boats_column(self, two_boats:list, column):
+    def two_boats_column(self, two_boats, column):
         """Procura numa coluna(column) duas posições seguidas para colocar um barco
         e armazena-os no em two_boats."""
 
         for row in range(ROWS-1):
 
-            if (self.rows[row] <= 0):
-                continue
             if (self.rows[row+1] <= 0):
+                row += 1
+                continue
+            if (self.rows[row] <= 0):
                 continue
 
             if(not ((row > 0 and self.board[row - 1][column] != '0' and self.board[row - 1][column] != 'w') or 
@@ -531,13 +543,13 @@ class Board:
                             two_boats.append(self.place_two_boat(t_boat))
         pass
 
-    def one_boats(self, one_boats:list, row):
+    def one_boats(self, one_boats, row):
         """Procura numa linha (row) uma posição para colocar um barco
         e armazena-o em one_boats."""
         
         for column in range(COLUMNS):
 
-            if (self.rows[row] <= 0):
+            if (self.columns[column] <= 0):
                 continue
 
             if self.board[row][column] == '0':
@@ -545,10 +557,10 @@ class Board:
                 one_boats.append(self.place_one_boat(o_boat))
         pass
 
-    def look_for_four_boat(self) -> list:
+    def look_for_four_boat(self):
         """Procura no tabuleiro espaços onde colocar barcos de 4."""
 
-        all_four_boats = list()
+        all_four_boats = []
         for row in range(ROWS):
             if (self.rows[row] >= 4):
                 self.four_boats_line(all_four_boats, row)
@@ -558,10 +570,10 @@ class Board:
 
         return all_four_boats
     
-    def look_for_three_boat(self) -> list:
+    def look_for_three_boat(self):
         """Procura no tabuleiro espaços onde colocar barcos de 3."""
 
-        all_three_boats = list()
+        all_three_boats = []
         for row in range(ROWS):
             if (self.rows[row] >= 3):
                 self.three_boats_line(all_three_boats, row)
@@ -571,10 +583,10 @@ class Board:
 
         return all_three_boats
     
-    def look_for_two_boat(self) -> list:
+    def look_for_two_boat(self):
         """Procura no tabuleiro espaços onde colocar barcos de 2."""
 
-        all_two_boats = list()
+        all_two_boats = []
         for row in range(ROWS):
             if (self.rows[row] >= 2):
                 self.two_boats_line(all_two_boats, row)
@@ -584,10 +596,10 @@ class Board:
 
         return all_two_boats
 
-    def look_for_one_boat(self) -> list:
+    def look_for_one_boat(self):
         "Procura no tabuleiro espaços onde colocar barcos de 1."
 
-        all_one_boats = list()
+        all_one_boats = []
         for row in range(ROWS):
             if (self.rows[row] >= 1):
                 self.one_boats(all_one_boats, row)
@@ -601,7 +613,6 @@ class Board:
             return False
 
         for row in range(ROWS):
-
             for column in range(COLUMNS):
 
 
@@ -658,7 +669,7 @@ class BimaruState:
         """ Procura por ações a realizar no estado atual."""
 
         if (self.board.hints < 0):
-            return tuple()
+            return ()
         if (self.board.remaining_four_boats > 0):
             return self.board.look_for_four_boat()
         if (self.board.remaining_three_boats > 0):
@@ -668,7 +679,7 @@ class BimaruState:
         if (self.board.remaining_one_boats > 0):
             return self.board.look_for_one_boat()
 
-        return tuple()
+        return ()
     
     def execute(self, action):
         """ Aplica uma ação ao estado atual."""
@@ -704,18 +715,18 @@ class Bimaru(Problem):
         ações vazias no caso de ser um tabuleiro inválido."""
 
         if(state.board.is_invalid_board()):
-           return tuple()
+           return ()
         
         actions = state.look_for_actions()
         if (state.board.remaining_three_boats > 0 and len(actions) < state.board.remaining_three_boats and
             len(actions) > 0 and len(actions[0]) == 3):
-            return tuple()
+            return ()
         elif (state.board.remaining_two_boats > 0 and len(actions) < state.board.remaining_two_boats and
             len(actions) > 0 and len(actions[0]) == 2):
-            return tuple()
+            return ()
         elif (state.board.remaining_one_boats > 0 and len(actions) < state.board.remaining_one_boats and
             len(actions) > 0 and len(actions[0]) == 1):
-            return tuple()
+            return ()
         
         return actions
 
