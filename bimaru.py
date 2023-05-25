@@ -90,7 +90,6 @@ class Board:
                 else:
                     print(self.board[i][j], end='')
             print()
-        print(" ")
         pass
 
 
