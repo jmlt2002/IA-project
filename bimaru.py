@@ -24,21 +24,6 @@ COLUMNS = 10
 HORIZONTAL = True
 VERTICAL = False
 
-#USEFUL DEFINITIONS
-
-# RecordType = Dict[Union[int, str], Set[str]]
-
-Hint = (str, bool)
-Position = (int, int)
-Placement = (str, Position)
-Action = (Placement)
-
-#BOATS
-Four_boat = (Position, Position, Position, Position, bool)
-Three_boat = (Position, Position, Position, bool)
-Two_boat = (Position, Position, bool) #last str indicates direction
-One_boat = Position
-
 class Board:
     """Representação interna de um tabuleiro de Bimaru."""
 
@@ -91,6 +76,23 @@ class Board:
             return (self.board[row][col-1], 'OUT')
         else:
             return (self.board[row][col-1], self.board[row][col+1])
+        
+    def print_board(self):
+        """"Imprime o tabuleiro de jogo."""
+
+        for hint in self.all_hints:
+            self.board[hint[0]][hint[1]] = hint[2]
+
+        for i in range(10):
+            for j in range(10):
+                if(self.board[i][j] == 'w'):
+                    print('.', end='')
+                else:
+                    print(self.board[i][j], end='')
+            print()
+        print(" ")
+        pass
+
 
     @staticmethod
     def parse_instance(self):
@@ -171,21 +173,7 @@ class Board:
 
         pass
 
-    def print_board(self):
-        """"Imprime o tabuleiro de jogo."""
-        
-        for hint in self.all_hints:
-            self.board[hint[0]][hint[1]] = hint[2]
-        
-        for i in range(10):
-            for j in range(10):
-                if(self.board[i][j] == 'w'):
-                    print('.', end='')
-                else:
-                    print(self.board[i][j], end='')
-            print()
-        pass
-
+    
     # FILLS WATER TILES ADJACENT TO SHIPS------------------------------
     def fill_water_around_circle(self, row: int, col: int):
         if(row + 1 < 10):
@@ -284,7 +272,7 @@ class Board:
         pass
     #---------------------------------------------------------------------
 
-    def place_four_boat(self, four_boat:Four_boat) -> Action:
+    def place_four_boat(self, four_boat):
         """Recebe um barco de quatro e transforma-o numa ação."""
 
         if (four_boat[4] == VERTICAL):
@@ -301,7 +289,7 @@ class Board:
 
         return (placement1,placement2,placement3, placement4)
     
-    def place_three_boat(self, three_boat: Three_boat) -> Action:
+    def place_three_boat(self, three_boat):
         """Recebe um barco de três e transforma-o numa ação."""
  
         if (three_boat[3] == VERTICAL):
@@ -316,7 +304,7 @@ class Board:
 
         return (placement1,placement2,placement3)
     
-    def place_two_boat(self, two_boat: Two_boat) -> Action:
+    def place_two_boat(self, two_boat):
         """Recebe um barco de dois e transforma-o numa ação."""
 
         if (two_boat[2] == VERTICAL):
@@ -329,7 +317,7 @@ class Board:
 
         return (placement1, placement2)
     
-    def place_one_boat(self, one_boat: One_boat) -> Action:
+    def place_one_boat(self, one_boat):
         """Recebe um barco de um e transforma-o numa ação."""
 
         placement1 = ('c', one_boat)
@@ -350,7 +338,7 @@ class Board:
             if (self.board[row][column] == '0'):
                 self.board[row][column] = 'w'
 
-    def place(self, placement : Placement):
+    def place(self, placement):
         """Recebe um placement com um símbolo e uma posição -> Placement(simbolo,posição)
         e coloca esse simbolo na respetiva posição do tabuleiro."""
 
@@ -609,9 +597,15 @@ class Board:
     
     def is_invalid_board(self):
         """Verifica se o tabuleiro é inválido."""
-        
+
+        if (self.hints == 0):
+            return False
+
         for row in range(ROWS):
+
             for column in range(COLUMNS):
+
+
                 if(self.board[row][column] != '0' and self.board[row][column] != 'w' and 
                    self.board[row][column] != 'c'):
                     
@@ -661,7 +655,7 @@ class BimaruState:
     def __lt__(self, other):
         return self.id < other.id
 
-    def look_for_actions(self) -> tuple(Action):
+    def look_for_actions(self):
         """ Procura por ações a realizar no estado atual."""
 
         if (self.board.hints < 0):
@@ -677,7 +671,7 @@ class BimaruState:
 
         return tuple()
     
-    def execute(self, action:Action):
+    def execute(self, action):
         """ Aplica uma ação ao estado atual."""
 
         child = BimaruState(self.board.new_duplicate_board())
@@ -726,7 +720,7 @@ class Bimaru(Problem):
         
         return actions
 
-    def result(self, state: BimaruState, action:Action):
+    def result(self, state: BimaruState, action):
         """Retorna o estado resultante de executar a 'action' sobre
         'state' passado como argumento. A ação a executar deve ser uma
         das presentes na lista obtida pela execução de
