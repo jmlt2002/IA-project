@@ -384,29 +384,32 @@ class Board:
             if (self.columns[column+3] <= 0):
                 column += 3
                 continue
-            if (self.columns[column+2] <= 0):
+            elif (self.columns[column+2] <= 0):
                 column += 2
                 continue
-            if (self.columns[column+1] <= 0):
+            elif (self.columns[column+1] <= 0):
                 column += 1
                 continue
-            if (self.columns[column] <= 0):
+            elif (self.columns[column] <= 0):
                 continue
             
+            elif (column+3 < 9 and self.board[row][column+4] != '0' and self.board[row][column+4] != 'w'):
+                column += 4
+                continue
 
-            if(not ((column > 0 and self.board[row][column-1] != '0' and self.board[row][column-1] != 'w') or 
-                    (column+3 < 9 and self.board[row][column+4] != '0' and self.board[row][column+4] != 'w'))):
+            elif (column > 0 and self.board[row][column-1] != '0' and self.board[row][column-1] != 'w'):
+                    continue
                             
-                if self.board[row][column] == 'l' or self.board[row][column] == '0':
-                    second_pos = self.board[row][column+1]
-                    third_pos = self.board[row][column+2]
-                    fourth_pos = self.board[row][column+3]
-                    if ((second_pos == 'm' or second_pos == '0') and
-                        (third_pos == 'm' or third_pos == '0') and
-                        (fourth_pos == 'r' or fourth_pos == '0')):
-                            f_boat = ((row,column),(row,column+1),
-                                                (row,column+2), (row,column+3), HORIZONTAL)
-                            four_boats.append(self.place_four_boat(f_boat))
+            elif self.board[row][column] == 'l' or self.board[row][column] == '0':
+                second_pos = self.board[row][column+1]
+                third_pos = self.board[row][column+2]
+                fourth_pos = self.board[row][column+3]
+                if ((second_pos == 'm' or second_pos == '0') and
+                    (third_pos == 'm' or third_pos == '0') and
+                    (fourth_pos == 'r' or fourth_pos == '0')):
+                        f_boat = ((row,column),(row,column+1),
+                                (row,column+2), (row,column+3), HORIZONTAL)
+                        four_boats.append(self.place_four_boat(f_boat))
         pass
 
     def four_boats_column(self, four_boats, column):
@@ -418,29 +421,32 @@ class Board:
             if (self.rows[row+3] <= 0):
                 row += 3
                 continue
-            if (self.rows[row+2] <= 0):
+            elif (self.rows[row+2] <= 0):
                 row += 2
                 continue
-            if (self.rows[row+1] <= 0):
+            elif (self.rows[row+1] <= 0):
                 row += 1
                 continue
-            if (self.rows[row] <= 0):
+            elif (self.rows[row] <= 0):
                 continue
             
+            elif (row+3 < 9 and self.board[row+4][column] != '0' and self.board[row+4][column] != 'w'):
+                row += 4
+                continue
 
-            if(not ((row > 0 and self.board[row-1][column] != '0' and self.board[row-1][column] != 'w') or 
-                    (row+3 < 9 and self.board[row+4][column] != '0' and self.board[row+4][column] != 'w'))):
+            elif(row > 0 and self.board[row-1][column] != '0' and self.board[row-1][column] != 'w'):
+                continue
                 
-                if self.board[row][column] == 't' or self.board[row][column] == '0':
-                    second_pos = self.board[row+1][column]
-                    third_pos = self.board[row+2][column]
-                    fourth_pos = self.board[row+3][column]
-                    if ((second_pos == 'm' or second_pos == '0') and
-                        (third_pos == 'm' or third_pos == '0') and
-                        (fourth_pos == 'b' or fourth_pos == '0')):
-                            f_boat = ((row,column),(row+1,column),
-                                                (row+2,column), (row+3,column), VERTICAL)
-                            four_boats.append(self.place_four_boat(f_boat))
+            elif self.board[row][column] == 't' or self.board[row][column] == '0':
+                second_pos = self.board[row+1][column]
+                third_pos = self.board[row+2][column]
+                fourth_pos = self.board[row+3][column]
+                if ((second_pos == 'm' or second_pos == '0') and
+                    (third_pos == 'm' or third_pos == '0') and
+                    (fourth_pos == 'b' or fourth_pos == '0')):
+                        f_boat = ((row,column),(row+1,column),
+                                            (row+2,column), (row+3,column), VERTICAL)
+                        four_boats.append(self.place_four_boat(f_boat))
         pass
 
     def three_boats_line(self, three_boats , row):
@@ -452,23 +458,27 @@ class Board:
             if (self.columns[column+2] <= 0):
                 column += 2
                 continue
-            if (self.columns[column+1] <= 0):
+            elif (self.columns[column+1] <= 0):
                 column += 1
                 continue
-            if (self.columns[column] <= 0):
+            elif (self.columns[column] <= 0):
                 continue
 
-            if(not ((column > 0 and self.board[row][column-1] != '0' and self.board[row][column-1] != 'w') or 
-                    (column+2 < 9 and self.board[row][column+3] != '0' and self.board[row][column+3] != 'w'))):
+            elif (column+2 < 9 and self.board[row][column+3] != '0' and self.board[row][column+3] != 'w'):
+                column += 3
+                continue
+
+            elif(column > 0 and self.board[row][column-1] != '0' and self.board[row][column-1] != 'w'):
+                continue
                 
-                if self.board[row][column] == 'l' or self.board[row][column] == '0':
-                    second_pos = self.board[row][column+1]
-                    third_pos = self.board[row][column+2]
-                    if ((second_pos == 'm' or second_pos == '0') and
-                        (third_pos == 'r' or third_pos == '0')):
-                            t_boat = ((row,column),(row,column+1),
-                                                (row,column+2), HORIZONTAL)
-                            three_boats.append(self.place_three_boat(t_boat))
+            elif self.board[row][column] == 'l' or self.board[row][column] == '0':
+                second_pos = self.board[row][column+1]
+                third_pos = self.board[row][column+2]
+                if ((second_pos == 'm' or second_pos == '0') and
+                    (third_pos == 'r' or third_pos == '0')):
+                        t_boat = ((row,column),(row,column+1),
+                                            (row,column+2), HORIZONTAL)
+                        three_boats.append(self.place_three_boat(t_boat))
         pass
 
     def three_boats_column(self, three_boats, column):
@@ -480,23 +490,26 @@ class Board:
             if (self.rows[row+2] <= 0):
                 row += 2
                 continue
-            if (self.rows[row+1] <= 0):
+            elif (self.rows[row+1] <= 0):
                 row += 1
                 continue
-            if (self.rows[row] <= 0):
+            elif (self.rows[row] <= 0):
                 continue
 
-            if(not ((row > 0 and self.board[row - 1][column] != '0' and self.board[row - 1][column] != 'w') or 
-                    (row+2 < 9 and self.board[row+3][column] != '0' and self.board[row+3][column] != 'w'))):
+            elif (row+2 < 9 and self.board[row+3][column] != '0' and self.board[row+3][column] != 'w'):
+                row += 3
+                continue
+            elif(row > 0 and self.board[row - 1][column] != '0' and self.board[row - 1][column] != 'w'):
+                continue
                 
-                if self.board[row][column] == 't' or self.board[row][column] == '0':
-                    second_pos = self.board[row+1][column]
-                    third_pos = self.board[row+2][column]
-                    if ((second_pos == 'm' or second_pos == '0') and
-                        (third_pos == 'b' or third_pos == '0')):
-                            t_boat = ((row,column),(row+1,column),
-                                                (row+2,column), VERTICAL)
-                            three_boats.append(self.place_three_boat(t_boat))
+            elif self.board[row][column] == 't' or self.board[row][column] == '0':
+                second_pos = self.board[row+1][column]
+                third_pos = self.board[row+2][column]
+                if ((second_pos == 'm' or second_pos == '0') and
+                    (third_pos == 'b' or third_pos == '0')):
+                        t_boat = ((row,column),(row+1,column),
+                                            (row+2,column), VERTICAL)
+                        three_boats.append(self.place_three_boat(t_boat))
         pass
 
     def two_boats_line(self, two_boats, row):
@@ -508,17 +521,21 @@ class Board:
             if (self.columns[column+1] <= 0):
                 column += 1
                 continue
-            if (self.columns[column] <= 0):
+            elif (self.columns[column] <= 0):
                 continue
 
-            if(not ((column > 0 and self.board[row][column-1] != '0' and self.board[row][column-1] != 'w') or 
-                    (column+2 < 9 and self.board[row][column+2] != '0' and self.board[row][column+2] != 'w'))):
+            elif (column+2 < 9 and self.board[row][column+2] != '0' and self.board[row][column+2] != 'w'):
+                column += 2
+                continue
+
+            elif(column > 0 and self.board[row][column-1] != '0' and self.board[row][column-1] != 'w'):
+                continue
                 
-                if self.board[row][column] == 'l' or self.board[row][column] == '0':
-                    second_pos = self.board[row][column+1]
-                    if (second_pos == 'r' or second_pos == '0'):
-                        t_boat = ((row,column),(row,column+1), HORIZONTAL)
-                        two_boats.append(self.place_two_boat(t_boat))
+            elif self.board[row][column] == 'l' or self.board[row][column] == '0':
+                second_pos = self.board[row][column+1]
+                if (second_pos == 'r' or second_pos == '0'):
+                    t_boat = ((row,column),(row,column+1), HORIZONTAL)
+                    two_boats.append(self.place_two_boat(t_boat))
         pass
 
     def two_boats_column(self, two_boats, column):
@@ -530,17 +547,20 @@ class Board:
             if (self.rows[row+1] <= 0):
                 row += 1
                 continue
-            if (self.rows[row] <= 0):
+            elif (self.rows[row] <= 0):
                 continue
 
-            if(not ((row > 0 and self.board[row - 1][column] != '0' and self.board[row - 1][column] != 'w') or 
-                    (row+2 < 9 and self.board[row+2][column] != '0' and self.board[row+2][column] != 'w'))):
+            elif (row+2 < 9 and self.board[row+2][column] != '0' and self.board[row+2][column] != 'w'):
+                row += 2
+                continue
+            elif (row > 0 and self.board[row - 1][column] != '0' and self.board[row - 1][column] != 'w'):
+                continue
                 
-                if self.board[row][column] == 't' or self.board[row][column] == '0':
-                    second_pos = self.board[row+1][column]
-                    if (second_pos == 'b' or second_pos == '0'):
-                            t_boat = ((row,column),(row+1,column), VERTICAL)
-                            two_boats.append(self.place_two_boat(t_boat))
+            elif self.board[row][column] == 't' or self.board[row][column] == '0':
+                second_pos = self.board[row+1][column]
+                if (second_pos == 'b' or second_pos == '0'):
+                        t_boat = ((row,column),(row+1,column), VERTICAL)
+                        two_boats.append(self.place_two_boat(t_boat))
         pass
 
     def one_boats(self, one_boats, row):
@@ -552,7 +572,7 @@ class Board:
             if (self.columns[column] <= 0):
                 continue
 
-            if self.board[row][column] == '0':
+            elif self.board[row][column] == '0':
                 o_boat = ((row,column))
                 one_boats.append(self.place_one_boat(o_boat))
         pass
@@ -561,12 +581,11 @@ class Board:
         """Procura no tabuleiro espaços onde colocar barcos de 4."""
 
         all_four_boats = []
-        for row in range(ROWS):
-            if (self.rows[row] >= 4):
-                self.four_boats_line(all_four_boats, row)
-        for column in range(COLUMNS):
-            if (self.columns[column] >= 4):
-                self.four_boats_column(all_four_boats, column)
+        for i in range(ROWS):
+            if (self.rows[i] >= 4):
+                self.four_boats_line(all_four_boats, i)
+            if (self.columns[i] >= 4):
+                self.four_boats_column(all_four_boats, i)
 
         return all_four_boats
     
@@ -574,12 +593,11 @@ class Board:
         """Procura no tabuleiro espaços onde colocar barcos de 3."""
 
         all_three_boats = []
-        for row in range(ROWS):
-            if (self.rows[row] >= 3):
-                self.three_boats_line(all_three_boats, row)
-        for column in range(COLUMNS):
-            if (self.columns[column] >= 3):
-                self.three_boats_column(all_three_boats, column)
+        for i in range(ROWS):
+            if (self.rows[i] >= 3):
+                self.three_boats_line(all_three_boats, i)
+            if (self.columns[i] >= 3):
+                self.three_boats_column(all_three_boats, i)
 
         return all_three_boats
     
@@ -587,12 +605,11 @@ class Board:
         """Procura no tabuleiro espaços onde colocar barcos de 2."""
 
         all_two_boats = []
-        for row in range(ROWS):
-            if (self.rows[row] >= 2):
-                self.two_boats_line(all_two_boats, row)
-        for column in range(COLUMNS):
-            if (self.columns[column] >= 2):
-                self.two_boats_column(all_two_boats, column)
+        for i in range(ROWS):
+            if (self.rows[i] >= 2):
+                self.two_boats_line(all_two_boats, i)
+            if (self.columns[i] >= 2):
+                self.two_boats_column(all_two_boats, i)
 
         return all_two_boats
 
@@ -668,6 +685,8 @@ class BimaruState:
     def look_for_actions(self):
         """ Procura por ações a realizar no estado atual."""
 
+        if (self.board.remaining_boats <= 0):
+            return ()
         if (self.board.hints < 0):
             return ()
         if (self.board.remaining_four_boats > 0):
@@ -718,15 +737,21 @@ class Bimaru(Problem):
            return ()
         
         actions = state.look_for_actions()
-        if (state.board.remaining_three_boats > 0 and len(actions) < state.board.remaining_three_boats and
-            len(actions) > 0 and len(actions[0]) == 3):
-            return ()
-        elif (state.board.remaining_two_boats > 0 and len(actions) < state.board.remaining_two_boats and
-            len(actions) > 0 and len(actions[0]) == 2):
-            return ()
-        elif (state.board.remaining_one_boats > 0 and len(actions) < state.board.remaining_one_boats and
-            len(actions) > 0 and len(actions[0]) == 1):
-            return ()
+        size = len(actions)
+
+
+        if (state.board.remaining_four_boats > 0):
+            if (size < state.board.remaining_four_boats):
+                return ()
+        elif (state.board.remaining_three_boats > 0): 
+            if (size < state.board.remaining_three_boats):
+                return ()
+        elif (state.board.remaining_two_boats > 0):
+            if (size < state.board.remaining_two_boats):
+                return ()
+        elif (state.board.remaining_one_boats > 0):
+            if (size < state.board.remaining_one_boats):
+                return ()
         
         return actions
 
