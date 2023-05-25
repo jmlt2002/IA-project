@@ -33,20 +33,11 @@ Position = (int, int)
 Placement = (str, Position)
 Action = (Placement)
 
-#acoes = [four_boat1, four_boat2]
-#acoes = [(4_cenas), (4cenas)]
-#acoes = [(('l',pos),('m', pos),('m', pos),('r', pos)) , (('l',pos),('m', pos),('m', pos),('r', pos))]
-         #---primeiro barco----------------------------  segundo_barco-------------------------------
-
-
 #BOATS
 Four_boat = (Position, Position, Position, Position, bool)
 Three_boat = (Position, Position, Position, bool)
 Two_boat = (Position, Position, bool) #last str indicates direction
 One_boat = Position
-
-
-
 
 class Board:
     """Representação interna de um tabuleiro de Bimaru."""
@@ -121,8 +112,8 @@ class Board:
             if (self.rows[i] == 0):
                 for j in range(COLUMNS):
                     self.board[i][j] = 'w'
-            #else:
-              #  self.rows[i] = int(self.rows[i])
+            else:
+                self.rows[i] = int(self.rows[i])
 
         #read columns values
         columns_raw = input().split()
@@ -132,8 +123,8 @@ class Board:
             if(self.columns[i] == 0):
                 for j in range(ROWS):
                     self.board[j][i] = 'w'
-            #else:
-                #self.columns[i] = int(self.columns[i])
+            else:
+                self.columns[i] = int(self.columns[i])
 
         #read hints
         hint_total = int(input())
@@ -160,6 +151,15 @@ class Board:
                 self.remaining_one_boats -= 1
                 self.hints -= 1
                 self.fill_water_around_circle(x, y)
+                if(self.columns[y] == 0):
+                    for j in range(ROWS):
+                        if(not self.board[j][y].isalpha()):
+                            self.board[j][y] = 'w'
+                if(self.rows[x] == 0):
+                    for j in range(COLUMNS):
+                        if(not self.board[x][j].isalpha()):
+                            self.board[x][j] = 'w'
+
             elif(simbol == 'B'):
                 self.fill_water_around_bottom(x, y)
             elif(simbol == 'T'):
@@ -169,15 +169,6 @@ class Board:
             elif(simbol == 'R'):
                 self.fill_water_around_right(x, y)
 
-        #for i in range(10):
-            #if(self.rows[i] == 0):
-             #   for j in range(ROWS):
-              #      if(not self.board[i][j].isalpha()):
-               #         self.board[i][j] = 'w'
-            #if(self.columns[i] == 0):
-             #   for j in range(COLUMNS):
-              #      if(not self.board[j][i].isalpha()):
-               #         self.board[j][i] = 'w'
         pass
 
     def print_board(self):
@@ -570,9 +561,6 @@ class Board:
     def look_for_four_boat(self) -> list:
         """Procura no tabuleiro espaços onde colocar barcos de 4."""
 
-        if(self.is_invalid_board()):
-           return list()
-
         all_four_boats = list()
         for row in range(ROWS):
             if (self.rows[row] >= 4):
@@ -585,9 +573,6 @@ class Board:
     
     def look_for_three_boat(self) -> list:
         """Procura no tabuleiro espaços onde colocar barcos de 3."""
-
-        if(self.is_invalid_board()):
-           return list()
 
         all_three_boats = list()
         for row in range(ROWS):
@@ -602,9 +587,6 @@ class Board:
     def look_for_two_boat(self) -> list:
         """Procura no tabuleiro espaços onde colocar barcos de 2."""
 
-        if(self.is_invalid_board()):
-           return list()
-
         all_two_boats = list()
         for row in range(ROWS):
             if (self.rows[row] >= 2):
@@ -617,9 +599,6 @@ class Board:
 
     def look_for_one_boat(self) -> list:
         "Procura no tabuleiro espaços onde colocar barcos de 1."
-
-        if(self.is_invalid_board()):
-           return list()
 
         all_one_boats = list()
         for row in range(ROWS):
@@ -719,9 +698,6 @@ class BimaruState:
         
         return child
 
-
-
-
 class Bimaru(Problem):
 
     def __init__(self, board: Board):
@@ -733,9 +709,22 @@ class Bimaru(Problem):
         """Retorna uma lista de ações que podem ser executadas a
         partir do estado passado como argumento.etorna um tuplo de
         ações vazias no caso de ser um tabuleiro inválido."""
-        #if(state.board.is_invalid_board()):
-           #return tuple()
-        return state.look_for_actions()
+
+        if(state.board.is_invalid_board()):
+           return tuple()
+        
+        actions = state.look_for_actions()
+        if (state.board.remaining_three_boats > 0 and len(actions) < state.board.remaining_three_boats and
+            len(actions) > 0 and len(actions[0]) == 3):
+            return tuple()
+        elif (state.board.remaining_two_boats > 0 and len(actions) < state.board.remaining_two_boats and
+            len(actions) > 0 and len(actions[0]) == 2):
+            return tuple()
+        elif (state.board.remaining_one_boats > 0 and len(actions) < state.board.remaining_one_boats and
+            len(actions) > 0 and len(actions[0]) == 1):
+            return tuple()
+        
+        return actions
 
     def result(self, state: BimaruState, action:Action):
         """Retorna o estado resultante de executar a 'action' sobre
