@@ -121,8 +121,8 @@ class Board:
             if (self.rows[i] == 0):
                 for j in range(COLUMNS):
                     self.board[i][j] = 'w'
-            else:
-                self.rows[i] = int(self.rows[i])
+            #else:
+              #  self.rows[i] = int(self.rows[i])
 
         #read columns values
         columns_raw = input().split()
@@ -132,12 +132,13 @@ class Board:
             if(self.columns[i] == 0):
                 for j in range(ROWS):
                     self.board[j][i] = 'w'
-            else:
-                self.columns[i] = int(self.columns[i])
+            #else:
+                #self.columns[i] = int(self.columns[i])
 
         #read hints
         hint_total = int(input())
         self.hints = hint_total
+        
 
         for i in range(hint_total):
             hint = input().split()
@@ -168,15 +169,15 @@ class Board:
             elif(simbol == 'R'):
                 self.fill_water_around_right(x, y)
 
-        for i in range(10):
-            if(self.rows[i] == 0):
-                for j in range(ROWS):
-                    if(not self.board[i][j].isalpha()):
-                        self.board[i][j] = 'w'
-            if(self.columns[i] == 0):
-                for j in range(COLUMNS):
-                    if(not self.board[j][i].isalpha()):
-                        self.board[j][i] = 'w'
+        #for i in range(10):
+            #if(self.rows[i] == 0):
+             #   for j in range(ROWS):
+              #      if(not self.board[i][j].isalpha()):
+               #         self.board[i][j] = 'w'
+            #if(self.columns[i] == 0):
+             #   for j in range(COLUMNS):
+              #      if(not self.board[j][i].isalpha()):
+               #         self.board[j][i] = 'w'
         pass
 
     def print_board(self):
@@ -569,6 +570,9 @@ class Board:
     def look_for_four_boat(self) -> list:
         """Procura no tabuleiro espaços onde colocar barcos de 4."""
 
+        if(self.is_invalid_board()):
+           return list()
+
         all_four_boats = list()
         for row in range(ROWS):
             if (self.rows[row] >= 4):
@@ -581,6 +585,9 @@ class Board:
     
     def look_for_three_boat(self) -> list:
         """Procura no tabuleiro espaços onde colocar barcos de 3."""
+
+        if(self.is_invalid_board()):
+           return list()
 
         all_three_boats = list()
         for row in range(ROWS):
@@ -595,6 +602,9 @@ class Board:
     def look_for_two_boat(self) -> list:
         """Procura no tabuleiro espaços onde colocar barcos de 2."""
 
+        if(self.is_invalid_board()):
+           return list()
+
         all_two_boats = list()
         for row in range(ROWS):
             if (self.rows[row] >= 2):
@@ -607,6 +617,9 @@ class Board:
 
     def look_for_one_boat(self) -> list:
         "Procura no tabuleiro espaços onde colocar barcos de 1."
+
+        if(self.is_invalid_board()):
+           return list()
 
         all_one_boats = list()
         for row in range(ROWS):
@@ -622,6 +635,7 @@ class Board:
             for column in range(COLUMNS):
                 if(self.board[row][column] != '0' and self.board[row][column] != 'w' and 
                    self.board[row][column] != 'c'):
+                    
                     if(self.board[row][column] == 'm'):
                         if(column+1 <= 9 and self.board[row][column+1] == 'w' and
                            row+1 <= 9 and self.board[row+1][column] == 'w'):
@@ -629,18 +643,23 @@ class Board:
                         if(column-1 >= 0 and self.board[row][column-1] == 'w' and
                            row+1 >= 0 and self.board[row-1][column] == 'w'):
                             return True
+                    
                     elif(self.board[row][column] == 't'):
                         if(row+1 <= 9 and self.board[row+1][column] == 'w'):
                             return True
+                    
                     elif(self.board[row][column] == 'b'):
                         if(row-1 >= 0 and self.board[row-1][column] == 'w'):
                             return True
+                    
                     elif(self.board[row][column] == 'r'):
                         if(column-1 >= 0 and self.board[row][column-1] == 'w'):
                             return True
+                    
                     elif(self.board[row][column] == 'l'):
                         if(column+1 <= 9 and self.board[row][column+1] == 'w'):
                             return True
+                        
                     elif(self.board[row][column] == 'm'):
                         if(column+1 <= 9 and self.board[row][column+1] == 'w' and
                            row+1 <= 9 and self.board[row+1][column] == 'w'):
@@ -714,8 +733,8 @@ class Bimaru(Problem):
         """Retorna uma lista de ações que podem ser executadas a
         partir do estado passado como argumento.etorna um tuplo de
         ações vazias no caso de ser um tabuleiro inválido."""
-        if(state.board.is_invalid_board()):
-            return tuple()
+        #if(state.board.is_invalid_board()):
+           #return tuple()
         return state.look_for_actions()
 
     def result(self, state: BimaruState, action:Action):
@@ -736,9 +755,7 @@ class Bimaru(Problem):
 
     def h(self, node: Node):
         """Função heuristica utilizada para a procura A*."""
-        # TODO:
         pass
-
 
 
 def bimaru_read():
