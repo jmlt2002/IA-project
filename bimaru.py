@@ -12,11 +12,7 @@ import numpy as np
 from search import (
     Problem,
     Node,
-    astar_search,
-    breadth_first_tree_search,
     depth_first_tree_search,
-    greedy_search,
-    recursive_best_first_search,
 )
 
 
@@ -54,7 +50,6 @@ class Board:
         duplicate_board.all_hints = self.all_hints
         return duplicate_board
         
-    
     def get_value(self, row: int, col: int) -> str:
         """Devolve o valor na respetiva posição do tabuleiro."""
         return self.board[row][col]
@@ -80,10 +75,8 @@ class Board:
         
     def print_board(self):
         """"Imprime o tabuleiro de jogo."""
-
         for hint in self.all_hints:
             self.board[hint[0]][hint[1]] = hint[2]
-
         for i in range(10):
             for j in range(10):
                 if(self.board[i][j] == 'w'):
@@ -92,7 +85,6 @@ class Board:
                     print(self.board[i][j], end='')
             print()
         pass
-
 
     @staticmethod
     def parse_instance(self):
@@ -105,7 +97,6 @@ class Board:
             > from sys import stdin
             > line = stdin.readline().split()
         """
-
         self.board = np.full((10, 10), '0')
         self.rows= [0]*ROWS
         self.columns = [0]*COLUMNS
@@ -168,9 +159,7 @@ class Board:
                 self.fill_water_around_left(x, y)
             elif(simbol == 'R'):
                 self.fill_water_around_right(x, y)
-
         pass
-
     
     # FILLS WATER TILES ADJACENT TO SHIPS------------------------------
     def fill_water_around_circle(self, row: int, col: int):
@@ -216,7 +205,6 @@ class Board:
             if(col - 1 >= 0):
                 self.board[row-1][col-1] = 'w'
                 self.board[row][col-1] = 'w'
-        pass
 
     def fill_water_around_bottom(self, row: int, col: int):
         if(row + 1 < 10):
@@ -233,7 +221,6 @@ class Board:
         if(row - 1 >= 0 and col - 1 >= 0):
             self.board[row-1][col-1] = 'w'
             self.board[row][col-1] = 'w'
-        pass
     
     def fill_water_around_right(self, row: int, col: int):
         if(col + 1 < 10):
@@ -250,7 +237,6 @@ class Board:
         if(col - 1 >= 0 and row - 1 >= 0):
             self.board[row-1][col-1] = 'w'
             self.board[row-1][col] = 'w'
-        pass
 
     def fill_water_around_left(self, row: int, col: int):
         if(col - 1 >= 0):
@@ -267,71 +253,57 @@ class Board:
         if(col + 1 < 10 and row - 1 >= 0):
             self.board[row-1][col+1] = 'w'
             self.board[row-1][col] = 'w'
-        pass
-    #---------------------------------------------------------------------
 
+    #---------------------------------------------------------------------
     def place_four_boat(self, four_boat):
         """Recebe um barco de quatro e transforma-o numa ação."""
-
         if (four_boat[4] == VERTICAL):
             placement1 = ('t', four_boat[0])
             placement2 = ('m', four_boat[1])
             placement3 = ('m', four_boat[2])
             placement4 = ('b', four_boat[3])
-        
         else:
             placement1 = ('l', four_boat[0])
             placement2 = ('m', four_boat[1])
             placement3 = ('m', four_boat[2])
             placement4 = ('r', four_boat[3])
-
         return (placement1,placement2,placement3, placement4)
     
     def place_three_boat(self, three_boat):
         """Recebe um barco de três e transforma-o numa ação."""
- 
         if (three_boat[3] == VERTICAL):
             placement1 = ('t', three_boat[0])
             placement2 = ('m', three_boat[1])
             placement3 = ('b', three_boat[2])
-        
         else:
             placement1 = ('l', three_boat[0])
             placement2 = ('m', three_boat[1])
             placement3 = ('r', three_boat[2])
-
         return (placement1,placement2,placement3)
     
     def place_two_boat(self, two_boat):
         """Recebe um barco de dois e transforma-o numa ação."""
-
         if (two_boat[2] == VERTICAL):
             placement1 = ('t', two_boat[0])
             placement2 = ('b', two_boat[1])
-        
         else:
             placement1 = ('l', two_boat[0])
             placement2 = ('r', two_boat[1])
-
         return (placement1, placement2)
     
     def place_one_boat(self, one_boat):
         """Recebe um barco de um e transforma-o numa ação."""
-
         placement1 = ('c', one_boat)
-
         return (placement1,)
     
     def fill_water_row(self , row):
         """Preenche com agua a respetiva linha do tabuleiro."""
-
         for column in range(COLUMNS):
             if (self.board[row][column] == '0'):
                 self.board[row][column] = 'w'
     
     def fill_water_column(self , column):
         """ Preenche com agua a respetiva coluna do board"""
-
         for row in range(ROWS):
             if (self.board[row][column] == '0'):
                 self.board[row][column] = 'w'
@@ -339,7 +311,6 @@ class Board:
     def place(self, placement):
         """Recebe um placement com um símbolo e uma posição -> Placement(simbolo,posição)
         e coloca esse simbolo na respetiva posição do tabuleiro."""
-
         x = placement[1][0]
         y = placement[1][1]
         simbol = placement[0]
@@ -350,7 +321,6 @@ class Board:
         
         self.rows[x] -= 1
         self.columns[y] -= 1
-
         self.board[x][y] = simbol
 
         #preencher linhas e colunas que chegaram a 0
@@ -372,13 +342,10 @@ class Board:
             self.fill_water_around_left(x ,y)
         else:
             self.fill_water_around_circle(x,y)
-        pass
 
     def four_boats_line(self, four_boats, row: int):
         """Procura numa linha(row) quatro posições seguidas para colocar um barco
         e armazena-os no em four_boats."""
-
-
         for column in range(COLUMNS-3):
 
             if (self.columns[column+3] <= 0):
@@ -410,12 +377,10 @@ class Board:
                         f_boat = ((row,column),(row,column+1),
                                 (row,column+2), (row,column+3), HORIZONTAL)
                         four_boats.append(self.place_four_boat(f_boat))
-        pass
 
     def four_boats_column(self, four_boats, column):
         """Procura numa coluna(column) quatro posições seguidas para colocar um barco
         e armazena-os no em four_boats."""
-        
         for row in range(ROWS-3):
 
             if (self.rows[row+3] <= 0):
@@ -447,12 +412,10 @@ class Board:
                         f_boat = ((row,column),(row+1,column),
                                             (row+2,column), (row+3,column), VERTICAL)
                         four_boats.append(self.place_four_boat(f_boat))
-        pass
 
     def three_boats_line(self, three_boats , row):
         """Procura numa linha(row) três posições seguidas para colocar um barco
         e armazena-os no em three_boats."""
-
         for column in range(COLUMNS-2):
 
             if (self.columns[column+2] <= 0):
@@ -479,7 +442,6 @@ class Board:
                         t_boat = ((row,column),(row,column+1),
                                             (row,column+2), HORIZONTAL)
                         three_boats.append(self.place_three_boat(t_boat))
-        pass
 
     def three_boats_column(self, three_boats, column):
         """Procura numa coluna(column) três posições seguidas para colocar um barco
@@ -510,12 +472,10 @@ class Board:
                         t_boat = ((row,column),(row+1,column),
                                             (row+2,column), VERTICAL)
                         three_boats.append(self.place_three_boat(t_boat))
-        pass
 
     def two_boats_line(self, two_boats, row):
         """Procura numa linha(row) duas posições seguidas para colocar um barco
         e armazena-os no em two_boats."""
-
         for column in range(COLUMNS-1):
 
             if (self.columns[column+1] <= 0):
@@ -536,12 +496,10 @@ class Board:
                 if (second_pos == 'r' or second_pos == '0'):
                     t_boat = ((row,column),(row,column+1), HORIZONTAL)
                     two_boats.append(self.place_two_boat(t_boat))
-        pass
 
     def two_boats_column(self, two_boats, column):
         """Procura numa coluna(column) duas posições seguidas para colocar um barco
         e armazena-os no em two_boats."""
-
         for row in range(ROWS-1):
 
             if (self.rows[row+1] <= 0):
@@ -561,12 +519,10 @@ class Board:
                 if (second_pos == 'b' or second_pos == '0'):
                         t_boat = ((row,column),(row+1,column), VERTICAL)
                         two_boats.append(self.place_two_boat(t_boat))
-        pass
 
     def one_boats(self, one_boats, row):
         """Procura numa linha (row) uma posição para colocar um barco
         e armazena-o em one_boats."""
-        
         for column in range(COLUMNS):
 
             if (self.columns[column] <= 0):
@@ -575,11 +531,9 @@ class Board:
             elif self.board[row][column] == '0':
                 o_boat = ((row,column))
                 one_boats.append(self.place_one_boat(o_boat))
-        pass
 
     def look_for_four_boat(self):
         """Procura no tabuleiro espaços onde colocar barcos de 4."""
-
         all_four_boats = []
         for i in range(ROWS):
             if (self.rows[i] >= 4):
@@ -591,7 +545,6 @@ class Board:
     
     def look_for_three_boat(self):
         """Procura no tabuleiro espaços onde colocar barcos de 3."""
-
         all_three_boats = []
         for i in range(ROWS):
             if (self.rows[i] >= 3):
@@ -603,7 +556,6 @@ class Board:
     
     def look_for_two_boat(self):
         """Procura no tabuleiro espaços onde colocar barcos de 2."""
-
         all_two_boats = []
         for i in range(ROWS):
             if (self.rows[i] >= 2):
@@ -615,7 +567,6 @@ class Board:
 
     def look_for_one_boat(self):
         "Procura no tabuleiro espaços onde colocar barcos de 1."
-
         all_one_boats = []
         for row in range(ROWS):
             if (self.rows[row] >= 1):
@@ -625,8 +576,24 @@ class Board:
     
     def is_invalid_board(self):
         """Verifica se o tabuleiro é inválido."""
-
         if (self.hints == 0):
+            for row in range(ROWS):
+                if (self.rows[row] > 0):
+                    invalid = 0
+                    for column in range(COLUMNS):
+                        if (self.board[row][column] == '0'):
+                            invalid += 1
+                    if(invalid < self.rows[row]):
+                        return True
+                
+            for column in range(COLUMNS):
+                if (self.columns[column] > 0):
+                    invalid = 0
+                    for row in range(ROWS):
+                        if (self.board[row][column] == '0'):
+                            invalid += 1
+                    if(invalid < self.columns[column]):
+                        return True
             return False
 
         for row in range(ROWS):
@@ -669,8 +636,6 @@ class Board:
                             return True
         return False
     
-
-
 class BimaruState:
     state_id = 0
 
@@ -752,7 +717,6 @@ class Bimaru(Problem):
         elif (state.board.remaining_one_boats > 0):
             if (size < state.board.remaining_one_boats):
                 return ()
-        
         return actions
 
     def result(self, state: BimaruState, action):
@@ -774,7 +738,6 @@ class Bimaru(Problem):
     def h(self, node: Node):
         """Função heuristica utilizada para a procura A*."""
         pass
-
 
 def bimaru_read():
     board = Board()
